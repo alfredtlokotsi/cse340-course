@@ -1,11 +1,36 @@
 <%- include('partials/header') %>
     <main>
         <h1><%= title %></h1>
-        <h2>Upcoming Service Projects</h2>
-     <ul>
-    <li>Park Cleanup - Join us to clean up local parks and make them beautiful!</li>
-    <li>Food Drive - Help collect and distribute food to those in need.</li>
-    <li>Community Tutoring - Volunteer to tutor students in various subjects.</li>
-      </ul>
+        
+        <p>Here are our service projects:</p>
+        <ul>
+            <% if (projects && projects.length > 0) { %>
+                <% projects.forEach(project => { %>
+                    <li>
+                        <strong>
+                            <%= project.project_date ? project.project_date.toLocaleDateString('en-US', { 
+                                year: 'numeric', 
+                                month: 'long', 
+                                day: 'numeric' 
+                            }) : 'TBD' %>: 
+                            <%= project.title %> 
+                            (<%= project.organization_name %>)
+                        </strong>
+                        <% if (project.description) { %>
+                            <br>
+                            <span style="color: #666; font-size: 0.9em;"><%= project.description %></span>
+                        <% } %>
+                        <% if (project.location) { %>
+                            <br>
+                            <span style="color: #888; font-size: 0.85em;">📍 <%= project.location %></span>
+                        <% } %>
+                    </li>
+                <% }) %>
+            <% } else { %>
+                <li style="text-align: center; color: #999; font-style: italic; padding: 40px;">
+                    No projects found in the database.
+                </li>
+            <% } %>
+        </ul>
     </main>
 <%- include('partials/footer') %>
