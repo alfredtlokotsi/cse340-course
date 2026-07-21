@@ -3,8 +3,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
 import { getAllOrganizations } from './models/organizations.js';
-import { getAllCategories } from './models/categories.js';
 import { getAllProjects } from './models/projects.js';
+import { getAllCategories } from './models/categories.js';
 import { pool } from './db.js';
 
 // Configure __dirname for ES modules
@@ -37,9 +37,6 @@ app.get('/organizations', async (req, res) => {
     try {
         const organizations = await getAllOrganizations();
         const title = 'Our Partner Organizations';
-        
-        console.log(`Found ${organizations.length} organizations`);
-        
         res.render('organizations', { title, organizations });
     } catch (error) {
         console.error('Error in /organizations route:', error);
@@ -50,14 +47,11 @@ app.get('/organizations', async (req, res) => {
     }
 });
 
-// Projects route - This is the only projects route needed for the activity
+// Projects route
 app.get('/projects', async (req, res) => {
     try {
         const projects = await getAllProjects();
         const title = 'Service Projects';
-        
-        console.log(`Found ${projects.length} projects`);
-        
         res.render('projects', { title, projects });
     } catch (error) {
         console.error('Error in /projects route:', error);
@@ -68,12 +62,11 @@ app.get('/projects', async (req, res) => {
     }
 });
 
-// Categories route
+// Categories route - NEW for this assignment
 app.get('/categories', async (req, res) => {
     try {
         const categories = await getAllCategories();
         const title = 'Service Project Categories';
-        
         res.render('categories', { title, categories });
     } catch (error) {
         console.error('Error in /categories route:', error);
@@ -117,5 +110,4 @@ app.listen(port, () => {
     console.log(`📋 Organizations: http://localhost:${port}/organizations`);
     console.log(`📁 Projects: http://localhost:${port}/projects`);
     console.log(`🏷️ Categories: http://localhost:${port}/categories`);
-    console.log(`🏥 Health Check: http://localhost:${port}/health`);
 });

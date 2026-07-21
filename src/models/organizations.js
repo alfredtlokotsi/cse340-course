@@ -1,14 +1,18 @@
-import db from './db.js'
+import { pool } from '../db.js';
 
-const getAllOrganizations = async() => {
+/**
+ * Get all organizations from the database
+ * @returns {Promise<Array>} Array of organization objects
+ */
+const getAllOrganizations = async () => {
     const query = `
         SELECT organization_id, name, description, contact_email, logo_filename
-      FROM public.organization;
+        FROM organizations
+        ORDER BY name ASC;
     `;
 
-    const result = await db.query(query);
-
+    const result = await pool.query(query);
     return result.rows;
-}
+};
 
-export {getAllOrganizations} 
+export { getAllOrganizations };

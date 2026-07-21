@@ -4,14 +4,22 @@
         
         <p>Here are a few of our partner organizations:</p>
         <ul>
-            <% organizations.forEach(organization => { %>
-                <li>
-                    <img src="/images/<%= organization.logo_filename %>" alt="<%= organization.name %> logo">
-                    <%= organization.name %>: <%= organization.contact_email %>
-                    <br>
-                    <span><%= organization.description %></span>
+            <% if (organizations && organizations.length > 0) { %>
+                <% organizations.forEach(organization => { %>
+                    <li>
+                        <img src="/images/<%= organization.logo_filename %>" alt="<%= organization.name %> logo">
+                        <div>
+                            <strong><%= organization.name %></strong>: <%= organization.contact_email %>
+                            <br>
+                            <span style="color: #666; font-size: 0.9em;"><%= organization.description %></span>
+                        </div>
+                    </li>
+                <% }) %>
+            <% } else { %>
+                <li style="text-align: center; color: #999; font-style: italic; padding: 40px;">
+                    No organizations found in the database.
                 </li>
-            <% }); %>
+            <% } %>
         </ul>
     </main>
 <%- include('partials/footer') %>
