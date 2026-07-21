@@ -1,36 +1,33 @@
 <%- include('partials/header') %>
-    <main>
-        <h1><%= title %></h1>
-        
-        <p>Here are our service projects:</p>
-        <ul>
-            <% if (projects && projects.length > 0) { %>
-                <% projects.forEach(project => { %>
-                    <li>
-                        <strong>
-                            <%= project.project_date ? project.project_date.toLocaleDateString('en-US', { 
-                                year: 'numeric', 
-                                month: 'long', 
-                                day: 'numeric' 
-                            }) : 'TBD' %>: 
-                            <%= project.title %> 
-                            (<%= project.organization_name %>)
-                        </strong>
-                        <% if (project.description) { %>
-                            <br>
-                            <span style="color: #666; font-size: 0.9em;"><%= project.description %></span>
-                        <% } %>
-                        <% if (project.location) { %>
-                            <br>
-                            <span style="color: #888; font-size: 0.85em;">📍 <%= project.location %></span>
-                        <% } %>
-                    </li>
-                <% }) %>
-            <% } else { %>
-                <li style="text-align: center; color: #999; font-style: italic; padding: 40px;">
-                    No projects found in the database.
+
+<main>
+    <h1><%= title %></h1>
+
+    <% if (projects && projects.length > 0) { %>
+        <p>Here are our current service projects:</p>
+        <ul class="project-list">
+            <% projects.forEach(project => { %>
+                <li>
+                    <h2><%= project.title %></h2>
+                    <p><strong>Organization:</strong> <%= project.organization_name %></p>
+                    <p><strong>Description:</strong> <%= project.description || 'No description available' %></p>
+                    <p><strong>Location:</strong> <%= project.location || 'TBD' %></p>
+                    <p><strong>Date:</strong> <%= new Date(project.project_date).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    }) %></p>
+                    <p><strong>Status:</strong> 
+                        <span class="status-badge status-<%= project.status %>">
+                            <%= project.status.charAt(0).toUpperCase() + project.status.slice(1) %>
+                        </span>
+                    </p>
                 </li>
-            <% } %>
+            <% }) %>
         </ul>
-    </main>
+    <% } else { %>
+        <p>No projects found. Please run the setup.sql script to populate the database.</p>
+    <% } %>
+</main>
+
 <%- include('partials/footer') %>

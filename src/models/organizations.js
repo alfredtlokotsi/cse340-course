@@ -1,4 +1,4 @@
-import { pool } from '../db.js';
+import db from './db.js';
 
 /**
  * Get all organizations from the database
@@ -11,7 +11,7 @@ const getAllOrganizations = async () => {
         ORDER BY name ASC;
     `;
 
-    const result = await pool.query(query);
+    const result = await db.query(query);
     return result.rows;
 };
 

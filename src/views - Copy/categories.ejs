@@ -1,0 +1,24 @@
+<%- include('partials/header') %>
+    <main>
+        <h1><%= title %></h1>
+        
+        <p>Browse our service project categories:</p>
+        <ul>
+            <% if (categories && categories.length > 0) { %>
+                <% categories.forEach(category => { %>
+                    <li>
+                        <strong><%= category.name %></strong>
+                        <% if (category.description) { %>
+                            <br>
+                            <span style="color: #666; font-size: 0.9em;"><%= category.description %></span>
+                        <% } %>
+                    </li>
+                <% }) %>
+            <% } else { %>
+                <li style="text-align: center; color: #999; font-style: italic; padding: 40px;">
+                    No categories found in the database.
+                </li>
+            <% } %>
+        </ul>
+    </main>
+<%- include('partials/footer') %>

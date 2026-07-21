@@ -1,25 +1,31 @@
 <%- include('partials/header') %>
-    <main>
-        <h1><%= title %></h1>
-        
-        <p>Here are a few of our partner organizations:</p>
-        <ul>
-            <% if (organizations && organizations.length > 0) { %>
-                <% organizations.forEach(organization => { %>
-                    <li>
-                        <img src="/images/<%= organization.logo_filename %>" alt="<%= organization.name %> logo">
-                        <div>
-                            <strong><%= organization.name %></strong>: <%= organization.contact_email %>
-                            <br>
-                            <span style="color: #666; font-size: 0.9em;"><%= organization.description %></span>
-                        </div>
-                    </li>
-                <% }) %>
-            <% } else { %>
-                <li style="text-align: center; color: #999; font-style: italic; padding: 40px;">
-                    No organizations found in the database.
+
+<main>
+    <h1><%= title %></h1>
+
+    <% if (organizations && organizations.length > 0) { %>
+        <p>Here are our partner organizations:</p>
+        <ul class="organization-list">
+            <% organizations.forEach(org => { %>
+                <li>
+                    <img src="/images/<%= org.logo_filename %>" 
+                         alt="<%= org.name %> logo" 
+                         onerror="this.style.display='none'">
+                    <div>
+                        <h2><%= org.name %></h2>
+                        <p><%= org.description %></p>
+                        <p><strong>Contact:</strong> 
+                            <a href="mailto:<%= org.contact_email %>">
+                                <%= org.contact_email %>
+                            </a>
+                        </p>
+                    </div>
                 </li>
-            <% } %>
+            <% }) %>
         </ul>
-    </main>
+    <% } else { %>
+        <p>No organizations found. Please run the setup.sql script to populate the database.</p>
+    <% } %>
+</main>
+
 <%- include('partials/footer') %>

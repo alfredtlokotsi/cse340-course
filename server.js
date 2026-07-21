@@ -1,42 +1,51 @@
 import express from 'express';
-import path from 'path';
 import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
-import { getAllOrganizations } from './models/organizations.js';
-import { getAllProjects } from './models/projects.js';
-import { getAllCategories } from './models/categories.js';
-import { pool } from './db.js';
+import path from 'path';
+import { testConnection } from './src/models/db.js';
+import { getAllOrganizations } from './src/models/organizations.js';
+import { getAllProjects } from './src/models/projects.js';
+import { getAllCategories } from './src/models/categories.js';
 
-// Configure __dirname for ES modules
+// Define the application environment
+const NODE_ENV = process.env.NODE_ENV?.toLowerCase() || 'production';
+
+// Define the port number the server will listen on
+const PORT = process.env.PORT || 3000;
+
+// Get __dirname in ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
-
 const app = express();
-const port = process.env.PORT || 3000;
 
-// Set up view engine
-app.set('views', path.join(__dirname, 'views'));
+/**
+ * Configure Express middleware
+ */
+
+// Serve static files from the public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
+// Set EJS as the templating engine
 app.set('view engine', 'ejs');
 
-// Middleware
-app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+// Tell Express where to find your templates
+app.set('views', path.join(__dirname, 'src/views'));
 
-// Home page
-app.get('/', (req, res) => {
-    res.render('index', {
-        title: 'Service Project Tracker'
-    });
+/**
+ * Routes
+ */
+app.get('/', async (req, res) => {
+    const title = 'Home';
+    res.render('home', { title });
 });
 
-// Organizations route
 app.get('/organizations', async (req, res) => {
     try {
         const organizations = await getAllOrganizations();
         const title = 'Our Partner Organizations';
+        
+        console.log(`Found ${organizations.length} organizations`);
+        
         res.render('organizations', { title, organizations });
     } catch (error) {
         console.error('Error in /organizations route:', error);
@@ -47,11 +56,13 @@ app.get('/organizations', async (req, res) => {
     }
 });
 
-// Projects route
 app.get('/projects', async (req, res) => {
     try {
         const projects = await getAllProjects();
         const title = 'Service Projects';
+        
+        console.log(`Found ${projects.length} projects`);
+        
         res.render('projects', { title, projects });
     } catch (error) {
         console.error('Error in /projects route:', error);
@@ -62,11 +73,13 @@ app.get('/projects', async (req, res) => {
     }
 });
 
-// Categories route - NEW for this assignment
 app.get('/categories', async (req, res) => {
     try {
         const categories = await getAllCategories();
         const title = 'Service Project Categories';
+        
+        console.log(`Found ${categories.length} categories`);
+        
         res.render('categories', { title, categories });
     } catch (error) {
         console.error('Error in /categories route:', error);
@@ -77,37 +90,23 @@ app.get('/categories', async (req, res) => {
     }
 });
 
-// Health check route
-app.get('/health', async (req, res) => {
-    try {
-        const result = await pool.query('SELECT NOW()');
-        res.json({
-            status: 'healthy',
-            timestamp: result.rows[0].now,
-            database: 'connected'
-        });
-    } catch (error) {
-        res.status(500).json({
-            status: 'unhealthy',
-            error: error.message
-        });
-    }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error('Unhandled error:', err.stack);
-    res.status(500).render('error', {
-        message: 'Something went wrong!',
-        error: err.message
+// Health check for Render
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'healthy', 
+        environment: NODE_ENV 
     });
 });
 
-// Start server
-app.listen(port, () => {
-    console.log(`🚀 Server is running on port ${port}`);
-    console.log(`🌐 Visit http://localhost:${port}`);
-    console.log(`📋 Organizations: http://localhost:${port}/organizations`);
-    console.log(`📁 Projects: http://localhost:${port}/projects`);
-    console.log(`🏷️ Categories: http://localhost:${port}/categories`);
+// Start the server
+app.listen(PORT, '0.0.0.0', async () => {
+    try {
+        await testConnection();
+        console.log(`Server is running at http://127.0.0.1:${PORT}`);
+        console.log(`Environment: ${NODE_ENV}`);
+    } catch (error) {
+        console.error('Error connecting to the database:', error);
+        console.log(`Server is running at http://127.0.0.1:${PORT} (without database)`);
+        console.log(`Environment: ${NODE_ENV}`);
+    }
 });

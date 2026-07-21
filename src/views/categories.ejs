@@ -1,24 +1,21 @@
 <%- include('partials/header') %>
-    <main>
-        <h1><%= title %></h1>
-        
-        <p>Browse our service project categories:</p>
-        <ul>
-            <% if (categories && categories.length > 0) { %>
-                <% categories.forEach(category => { %>
-                    <li>
-                        <strong><%= category.name %></strong>
-                        <% if (category.description) { %>
-                            <br>
-                            <span style="color: #666; font-size: 0.9em;"><%= category.description %></span>
-                        <% } %>
-                    </li>
-                <% }) %>
-            <% } else { %>
-                <li style="text-align: center; color: #999; font-style: italic; padding: 40px;">
-                    No categories found in the database.
+
+<main>
+    <h1><%= title %></h1>
+
+    <% if (categories && categories.length > 0) { %>
+        <p>Here are our service project categories:</p>
+        <ul class="category-list">
+            <% categories.forEach(category => { %>
+                <li>
+                    <h2><%= category.name %></h2>
+                    <p><%= category.description || 'No description available' %></p>
                 </li>
-            <% } %>
+            <% }) %>
         </ul>
-    </main>
+    <% } else { %>
+        <p>No categories found. Please run the setup.sql script to populate the database.</p>
+    <% } %>
+</main>
+
 <%- include('partials/footer') %>
