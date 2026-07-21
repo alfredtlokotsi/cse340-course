@@ -1,30 +1,33 @@
 <%- include('partials/header') %>
 
 <main>
-    <h1><%= title %></h1>
+    <div class="page-header">
+        <h1>🤝 Our Partner Organizations</h1>
+        <p>These organizations are making a difference in our community</p>
+    </div>
 
     <% if (organizations && organizations.length > 0) { %>
-        <p>Here are our partner organizations:</p>
-        <ul class="organization-list">
+        <div class="organization-grid">
             <% organizations.forEach(org => { %>
-                <li>
-                    <img src="/images/<%= org.logo_filename %>" 
+                <div class="organization-card">
+                    <img class="organization-logo" 
+                         src="/images/<%= org.logo_filename %>" 
                          alt="<%= org.name %> logo" 
                          onerror="this.style.display='none'">
-                    <div>
+                    <div class="organization-info">
                         <h2><%= org.name %></h2>
                         <p><%= org.description %></p>
-                        <p><strong>Contact:</strong> 
-                            <a href="mailto:<%= org.contact_email %>">
-                                <%= org.contact_email %>
-                            </a>
-                        </p>
+                        <a href="mailto:<%= org.contact_email %>" class="organization-email">
+                            ✉️ <%= org.contact_email %>
+                        </a>
                     </div>
-                </li>
+                </div>
             <% }) %>
-        </ul>
+        </div>
     <% } else { %>
-        <p>No organizations found. Please run the setup.sql script to populate the database.</p>
+        <p style="text-align: center; color: var(--gray-500); padding: var(--spacing-xl);">
+            No organizations found. Please run the setup.sql script to populate the database.
+        </p>
     <% } %>
 </main>
 

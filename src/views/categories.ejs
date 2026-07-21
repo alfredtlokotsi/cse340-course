@@ -1,20 +1,24 @@
 <%- include('partials/header') %>
 
 <main>
-    <h1><%= title %></h1>
+    <div class="page-header">
+        <h1>🏷️ Service Project Categories</h1>
+        <p>Browse projects by category</p>
+    </div>
 
     <% if (categories && categories.length > 0) { %>
-        <p>Here are our service project categories:</p>
-        <ul class="category-list">
+        <div class="categories-grid">
             <% categories.forEach(category => { %>
-                <li>
+                <div class="category-card">
                     <h2><%= category.name %></h2>
                     <p><%= category.description || 'No description available' %></p>
-                </li>
+                </div>
             <% }) %>
-        </ul>
+        </div>
     <% } else { %>
-        <p>No categories found. Please run the setup.sql script to populate the database.</p>
+        <p style="text-align: center; color: var(--gray-500); padding: var(--spacing-xl);">
+            No categories found. Please run the setup.sql script to populate the database.
+        </p>
     <% } %>
 </main>
 
