@@ -39,22 +39,7 @@ app.get('/', async (req, res) => {
     res.render('home', { title });
 });
 
-app.get('/organizations', async (req, res) => {
-    try {
-        const organizations = await getAllOrganizations();
-        const title = 'Our Partner Organizations';
-        
-        console.log(`Found ${organizations.length} organizations`);
-        
-        res.render('organizations', { title, organizations });
-    } catch (error) {
-        console.error('Error in /organizations route:', error);
-        res.status(500).render('error', {
-            message: 'Error loading organizations',
-            error: error.message
-        });
-    }
-});
+
 
 app.get('/projects', async (req, res) => {
     try {
