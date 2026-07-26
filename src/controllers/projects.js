@@ -20,7 +20,10 @@ const NUMBER_OF_UPCOMING_PROJECTS = 5;
  */
 const showProjectsPage = async (req, res, next) => {
     try {
+        console.log('📋 Fetching upcoming projects...');
         const projects = await getUpcomingProjects(NUMBER_OF_UPCOMING_PROJECTS);
+        console.log(`✅ Found ${projects.length} upcoming projects`);
+        
         const title = 'Upcoming Service Projects';
         
         res.render('projects', { 
@@ -29,6 +32,7 @@ const showProjectsPage = async (req, res, next) => {
             formatDate: formatDate
         });
     } catch (error) {
+        console.error('❌ Error in showProjectsPage:', error);
         next(error);
     }
 };
@@ -42,6 +46,7 @@ const showProjectsPage = async (req, res, next) => {
 const showProjectDetailsPage = async (req, res, next) => {
     try {
         const projectId = req.params.id;
+        console.log(`📋 Fetching project details for ID: ${projectId}`);
         
         // Validate that the ID is a number
         if (!/^\d+$/.test(projectId)) {
@@ -52,6 +57,7 @@ const showProjectDetailsPage = async (req, res, next) => {
         
         // Get project details
         const project = await getProjectDetails(projectId);
+        console.log(`✅ Project found: ${project ? project.title : 'Not found'}`);
         
         // If project not found, return 404
         if (!project) {
@@ -68,6 +74,7 @@ const showProjectDetailsPage = async (req, res, next) => {
             formatDate: formatDate
         });
     } catch (error) {
+        console.error('❌ Error in showProjectDetailsPage:', error);
         next(error);
     }
 };

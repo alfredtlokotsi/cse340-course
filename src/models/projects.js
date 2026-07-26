@@ -140,32 +140,6 @@ const getProjectsByOrganizationId = async (organizationId) => {
 };
 
 /**
- * Get a single service project by ID (basic version)
- * @param {number} id - Project ID
- * @returns {Promise<Object>} Project object
- */
-const getProjectById = async (id) => {
-    const query = `
-        SELECT 
-            sp.*,
-            o.name AS organization_name,
-            o.logo_filename AS organization_logo,
-            o.contact_email AS organization_email
-        FROM service_projects sp
-        INNER JOIN organization o ON sp.organization_id = o.organization_id
-        WHERE sp.project_id = $1;
-    `;
-
-    try {
-        const result = await db.query(query, [id]);
-        return result.rows[0] || null;
-    } catch (error) {
-        console.error('Error fetching project by ID:', error);
-        throw error;
-    }
-};
-
-/**
  * Format date for display
  * @param {Date} date - Date object
  * @returns {string} Formatted date string
@@ -187,6 +161,5 @@ export {
     getUpcomingProjects,
     getProjectDetails,
     getProjectsByOrganizationId,
-    getProjectById,
     formatDate
 };

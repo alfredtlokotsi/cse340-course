@@ -77,3 +77,22 @@ router.use(handleError);
 
 // Export the router
 export default router;
+
+
+// Add this test route near your other routes
+router.get('/test-projects', async (req, res) => {
+    try {
+        const { getUpcomingProjects } = await import('./models/projects.js');
+        const projects = await getUpcomingProjects(5);
+        res.json({
+            success: true,
+            count: projects.length,
+            projects: projects
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            error: error.message
+        });
+    }
+});
