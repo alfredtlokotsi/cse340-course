@@ -1,0 +1,32 @@
+<!-- In the service projects section of organization.ejs -->
+<div class="org-detail-section">
+    <h3><i class="fas fa-project-diagram"></i> Service Projects</h3>
+    <% if (projects && projects.length > 0) { %>
+        <ul class="project-list org-projects">
+            <% projects.forEach(project => { %>
+                <li>
+                    <!-- Link to project details page -->
+                    <a href="/project/<%= project.project_id %>">
+                        <strong><%= project.title %></strong>
+                    </a>
+                    <span class="project-date">
+                        <i class="fas fa-calendar-alt"></i>
+                        <%= formatDate(project.project_date) %>
+                    </span>
+                    <p><%= project.description %></p>
+                    <div class="project-meta">
+                        <span class="project-status status-<%= project.status.toLowerCase() %>">
+                            <%= project.status %>
+                        </span>
+                        <span class="project-location">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <%= project.location %>
+                        </span>
+                    </div>
+                </li>
+            <% }); %>
+        </ul>
+    <% } else { %>
+        <p class="no-projects">No service projects currently available for this organization.</p>
+    <% } %>
+</div>

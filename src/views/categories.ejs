@@ -1,24 +1,43 @@
 <%- include('partials/header') %>
 
 <main>
-    <div class="page-header">
-        <h1>🏷️ Service Project Categories</h1>
-        <p>Browse projects by category</p>
+    <h1><%= title %></h1>
+    
+    <div class="categories-header">
+        <p>Browse service opportunities by category. Find the perfect way to make a difference in your community!</p>
     </div>
-
+    
     <% if (categories && categories.length > 0) { %>
         <div class="categories-grid">
             <% categories.forEach(category => { %>
                 <div class="category-card">
-                    <h2><%= category.name %></h2>
-                    <p><%= category.description || 'No description available' %></p>
+                    <div class="category-icon">
+                        <i class="<%= category.icon_class || 'fas fa-tag' %>"></i>
+                    </div>
+                    <div class="category-content">
+                        <h3><%= category.name %></h3>
+                        <p><%= category.description || 'No description available' %></p>
+                        <div class="category-meta">
+                            <span class="project-count">
+                                <i class="fas fa-project-diagram"></i>
+                                <%= category.project_count || 0 %> projects
+                            </span>
+                            <span class="category-status <%= category.is_active ? 'active' : 'inactive' %>">
+                                <%= category.is_active ? 'Active' : 'Inactive' %>
+                            </span>
+                        </div>
+                    </div>
                 </div>
-            <% }) %>
+            <% }); %>
+        </div>
+        
+        <div class="category-count">
+            <p>Total Categories: <%= categories.length %></p>
         </div>
     <% } else { %>
-        <p style="text-align: center; color: var(--gray-500); padding: var(--spacing-xl);">
-            No categories found. Please run the setup.sql script to populate the database.
-        </p>
+        <div class="empty-state">
+            <p>No categories available at this time.</p>
+        </div>
     <% } %>
 </main>
 
