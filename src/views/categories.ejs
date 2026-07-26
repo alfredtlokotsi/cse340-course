@@ -26,6 +26,9 @@
                                 <%= category.is_active ? 'Active' : 'Inactive' %>
                             </span>
                         </div>
+                        <a href="/category/<%= category.category_id %>" class="btn btn-primary btn-sm">
+                            View Projects
+                        </a>
                     </div>
                 </div>
             <% }); %>
@@ -37,6 +40,7 @@
     <% } else { %>
         <div class="empty-state">
             <p>No categories available at this time.</p>
+            <p>Check back later for new categories!</p>
         </div>
     <% } %>
 </main>

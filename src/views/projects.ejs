@@ -1,92 +1,68 @@
 <%- include('partials/header') %>
 
 <main>
-    <div class="project-details-header">
-        <h1><%= project.title %></h1>
-        <a href="/projects" class="btn btn-secondary btn-sm">
-            <i class="fas fa-arrow-left"></i> Back to Projects
-        </a>
+    <h1><%= title %></h1>
+    
+    <div class="projects-header">
+        <p>Discover service opportunities in your community. Join us in making a difference!</p>
+        <p class="upcoming-note">Showing the next <%= projects ? projects.length : 0 %> upcoming projects.</p>
     </div>
     
-    <div class="project-details-container">
-        <div class="project-status-banner status-<%= project.status.toLowerCase() %>">
-            <span class="status-label">Status:</span>
-            <span class="status-value"><%= project.status %></span>
-        </div>
-        
-        <div class="project-details-grid">
-            <div class="project-detail-section">
-                <h3><i class="fas fa-info-circle"></i> Description</h3>
-                <p><%= project.description %></p>
-            </div>
-            
-            <div class="project-detail-section">
-                <h3><i class="fas fa-map-marker-alt"></i> Location</h3>
-                <p><%= project.location %></p>
-            </div>
-            
-            <div class="project-detail-section">
-                <h3><i class="fas fa-calendar-alt"></i> Date</h3>
-                <p><%= formatDate(project.project_date) %></p>
-            </div>
-            
-            <div class="project-detail-section">
-                <h3><i class="fas fa-building"></i> Organization</h3>
-                <a href="/organization/<%= project.organization_id %>" class="org-detail-link">
-                    <strong><%= project.organization_name %></strong>
-                </a>
-                <p><%= project.organization_description %></p>
-                <p>
-                    <i class="fas fa-envelope"></i>
-                    <a href="mailto:<%= project.contact_email %>"><%= project.contact_email %></a>
-                </p>
-            </div>
-            
-            <div class="project-detail-section">
-                <h3><i class="fas fa-users"></i> Volunteers</h3>
-                <div class="volunteer-info">
-                    <p>
-                        <span class="volunteer-count">
-                            <%= project.current_volunteers || 0 %>
+    <% if (projects && projects.length > 0) { %>
+        <div class="project-list">
+            <% projects.forEach(project => { %>
+                <div class="project-card">
+                    <div class="project-header">
+                        <h3>
+                            <a href="/project/<%= project.project_id %>" class="project-link">
+                                <%= project.title %>
+                            </a>
+                        </h3>
+                        <span class="project-date-badge">
+                            <i class="fas fa-calendar-alt"></i>
+                            <%= formatDate(project.project_date) %>
                         </span>
-                        / 
-                        <span class="volunteer-max">
-                            <%= project.max_volunteers || 'Unlimited' %>
-                        </span>
-                        volunteers registered
-                    </p>
-                    <% if (project.max_volunteers) { %>
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: <%= Math.min((project.current_volunteers || 0) / project.max_volunteers * 100, 100) %>%"></div>
+                    </div>
+                    
+                    <div class="project-organization">
+                        <span class="org-label">Organization:</span>
+                        <a href="/organization/<%= project.organization_id %>" class="org-link">
+                            <%= project.organization_name %>
+                        </a>
+                    </div>
+                    
+                    <p class="project-description"><%= project.description %></p>
+                    
+                    <div class="project-details">
+                        <div class="detail-item">
+                            <span class="detail-icon">📍</span>
+                            <span class="detail-text"><%= project.location %></span>
                         </div>
-                        <p class="progress-text">
-                            <%= Math.round(Math.min((project.current_volunteers || 0) / project.max_volunteers * 100, 100)) %>% filled
-                        </p>
-                    <% } %>
+                    </div>
+                    
+                    <div class="project-actions">
+                        <a href="/project/<%= project.project_id %>" class="btn btn-primary">
+                            View Details <i class="fas fa-arrow-right"></i>
+                        </a>
+                        <a href="/organization/<%= project.organization_id %>" class="btn btn-secondary">
+                            <i class="fas fa-building"></i> View Organization
+                        </a>
+                    </div>
                 </div>
-            </div>
+            <% }); %>
         </div>
         
-        <div class="project-actions-bottom">
-            <a href="/projects" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Projects
-            </a>
-            <a href="/organization/<%= project.organization_id %>" class="btn btn-primary">
-                <i class="fas fa-building"></i> View Organization
-            </a>
-            <button class="btn btn-success" onclick="registerForProject(<%= project.project_id %>)">
-                <i class="fas fa-hand-paper"></i> Register for this Project
-            </button>
+        <div class="project-count">
+            <p>Showing <%= projects.length %> upcoming project<%= projects.length > 1 ? 's' : '' %></p>
         </div>
-    </div>
+    <% } else { %>
+        <div class="empty-state">
+            <div class="empty-icon">📋</div>
+            <h3>No Upcoming Projects</h3>
+            <p>There are currently no upcoming service projects.</p>
+            <p>Check back later for new opportunities!</p>
+        </div>
+    <% } %>
 </main>
 
 <%- include('partials/footer') %>
-
-<script>
-    function registerForProject(projectId) {
-        if (confirm('Would you like to register for this service project?')) {
-            alert('Thank you for registering! You will be contacted with more details.');
-        }
-    }
-</script>

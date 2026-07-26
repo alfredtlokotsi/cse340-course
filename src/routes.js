@@ -18,7 +18,8 @@ import {
     getProjectsJSON 
 } from './controllers/projects.js';
 import { 
-    showCategoriesPage, 
+    showCategoriesPage,
+    showCategoryDetailPage,
     getCategoriesJSON 
 } from './controllers/categories.js';
 import { 
@@ -48,6 +49,7 @@ router.get('/project/:id', showProjectDetailsPage);
 
 // Categories pages
 router.get('/categories', showCategoriesPage);
+router.get('/category/:id', showCategoryDetailPage);  // Category detail page
 
 // ============================================
 // API Routes (JSON endpoints)
@@ -61,7 +63,6 @@ router.get('/api/categories', getCategoriesJSON);
 // Test Routes (Development only)
 // ============================================
 
-// Test routes for error handling
 router.get('/test-error', testErrorPage);
 router.get('/test-404', test404Error);
 
@@ -69,30 +70,11 @@ router.get('/test-404', test404Error);
 // Error Handling Routes
 // ============================================
 
-// Catch-all route for 404 errors (must be after all other routes)
+// Catch-all route for 404 errors
 router.use(show404Page);
 
-// Global error handler (must be last)
+// Global error handler
 router.use(handleError);
 
 // Export the router
 export default router;
-
-
-// Add this test route near your other routes
-router.get('/test-projects', async (req, res) => {
-    try {
-        const { getUpcomingProjects } = await import('./models/projects.js');
-        const projects = await getUpcomingProjects(5);
-        res.json({
-            success: true,
-            count: projects.length,
-            projects: projects
-        });
-    } catch (error) {
-        res.status(500).json({
-            success: false,
-            error: error.message
-        });
-    }
-});

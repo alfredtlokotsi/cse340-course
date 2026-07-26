@@ -26,9 +26,10 @@ const showProjectsPage = async (req, res, next) => {
         
         const title = 'Upcoming Service Projects';
         
+        // This passes 'projects' (plural) to the view
         res.render('projects', { 
             title, 
-            projects,
+            projects,  // <-- This should be 'projects' (plural)
             formatDate: formatDate
         });
     } catch (error) {
@@ -36,7 +37,6 @@ const showProjectsPage = async (req, res, next) => {
         next(error);
     }
 };
-
 /**
  * Display the project details page
  * @param {Object} req - Express request object
@@ -68,9 +68,10 @@ const showProjectDetailsPage = async (req, res, next) => {
         
         const title = project.title;
         
+        // Make sure you're passing 'project' (singular) to the view
         res.render('project', {
             title,
-            project,
+            project,  // <-- This must be 'project' (singular)
             formatDate: formatDate
         });
     } catch (error) {
@@ -78,7 +79,6 @@ const showProjectDetailsPage = async (req, res, next) => {
         next(error);
     }
 };
-
 /**
  * Get all projects as JSON (API endpoint)
  * @param {Object} req - Express request object
