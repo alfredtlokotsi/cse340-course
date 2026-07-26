@@ -15,12 +15,10 @@ import {
 import { 
     showProjectsPage, 
     showProjectDetailsPage,
-    getProjectsJSON,
-    getUpcomingProjectsJSON
+    getProjectsJSON 
 } from './controllers/projects.js';
 import { 
     showCategoriesPage, 
-    showCategoryDetail, 
     getCategoriesJSON 
 } from './controllers/categories.js';
 import { 
@@ -46,20 +44,17 @@ router.get('/organization/:id', showOrganizationDetailsPage);
 
 // Projects pages
 router.get('/projects', showProjectsPage);
-router.get('/project/:id', showProjectDetailsPage);  // NEW: Project details
+router.get('/project/:id', showProjectDetailsPage);
 
 // Categories pages
 router.get('/categories', showCategoriesPage);
-router.get('/categories/:id', showCategoryDetail);
 
 // ============================================
 // API Routes (JSON endpoints)
 // ============================================
 
-// API endpoints
 router.get('/api/organizations', getOrganizationsJSON);
 router.get('/api/projects', getProjectsJSON);
-router.get('/api/projects/upcoming', getUpcomingProjectsJSON);  // NEW: Upcoming API
 router.get('/api/categories', getCategoriesJSON);
 
 // ============================================

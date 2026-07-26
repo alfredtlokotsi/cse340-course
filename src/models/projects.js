@@ -166,124 +166,6 @@ const getProjectById = async (id) => {
 };
 
 /**
- * Create a new service project
- * @param {Object} data - Project data
- * @returns {Promise<Object>} Created project
- */
-const createProject = async (data) => {
-    const { 
-        organization_id, 
-        title, 
-        description, 
-        location, 
-        project_date, 
-        status, 
-        max_volunteers 
-    } = data;
-    
-    const query = `
-        INSERT INTO service_projects (
-            organization_id, 
-            title, 
-            description, 
-            location, 
-            project_date, 
-            status, 
-            max_volunteers
-        )
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
-        RETURNING *;
-    `;
-
-    try {
-        const result = await db.query(query, [
-            organization_id, 
-            title, 
-            description, 
-            location, 
-            project_date, 
-            status, 
-            max_volunteers
-        ]);
-        return result.rows[0];
-    } catch (error) {
-        console.error('Error creating project:', error);
-        throw error;
-    }
-};
-
-/**
- * Update a service project
- * @param {number} id - Project ID
- * @param {Object} data - Updated project data
- * @returns {Promise<Object>} Updated project
- */
-const updateProject = async (id, data) => {
-    const { 
-        title, 
-        description, 
-        location, 
-        project_date, 
-        status, 
-        max_volunteers,
-        current_volunteers
-    } = data;
-    
-    const query = `
-        UPDATE service_projects
-        SET 
-            title = COALESCE($1, title),
-            description = COALESCE($2, description),
-            location = COALESCE($3, location),
-            project_date = COALESCE($4, project_date),
-            status = COALESCE($5, status),
-            max_volunteers = COALESCE($6, max_volunteers),
-            current_volunteers = COALESCE($7, current_volunteers),
-            updated_at = CURRENT_TIMESTAMP
-        WHERE project_id = $8
-        RETURNING *;
-    `;
-
-    try {
-        const result = await db.query(query, [
-            title, 
-            description, 
-            location, 
-            project_date, 
-            status, 
-            max_volunteers,
-            current_volunteers,
-            id
-        ]);
-        return result.rows[0] || null;
-    } catch (error) {
-        console.error('Error updating project:', error);
-        throw error;
-    }
-};
-
-/**
- * Delete a service project
- * @param {number} id - Project ID
- * @returns {Promise<boolean>} True if deleted successfully
- */
-const deleteProject = async (id) => {
-    const query = `
-        DELETE FROM service_projects
-        WHERE project_id = $1
-        RETURNING project_id;
-    `;
-
-    try {
-        const result = await db.query(query, [id]);
-        return result.rows.length > 0;
-    } catch (error) {
-        console.error('Error deleting project:', error);
-        throw error;
-    }
-};
-
-/**
  * Format date for display
  * @param {Date} date - Date object
  * @returns {string} Formatted date string
@@ -299,15 +181,12 @@ const formatDate = (date) => {
     });
 };
 
-// Export all functions
+// Export ALL functions
 export {
     getAllProjects,
     getUpcomingProjects,
     getProjectDetails,
     getProjectsByOrganizationId,
     getProjectById,
-    createProject,
-    updateProject,
-    deleteProject,
     formatDate
 };

@@ -1,23 +1,46 @@
-// Import any needed model functions
+// ============================================
+// Categories Controller
+// ============================================
+
 import { getAllCategories } from '../models/categories.js';
 
 /**
- * Controller for the categories page
- * Fetches all categories from the database and renders the categories view
+ * Display the categories page
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
  */
 const showCategoriesPage = async (req, res, next) => {
     try {
         const categories = await getAllCategories();
-        const title = 'Service Project Categories';
-        console.log(`Found ${categories.length} categories`);
-        res.render('categories', { title, categories });
+        const title = 'Service Categories';
+        
+        res.render('categories', { 
+            title, 
+            categories 
+        });
     } catch (error) {
-        console.error('Error in showCategoriesPage:', error);
-        const err = new Error('Error loading categories');
-        err.status = 500;
-        next(err);
+        next(error);
     }
 };
 
-// Export the controller functions
-export { showCategoriesPage };
+/**
+ * Get categories as JSON (API endpoint)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ * @param {Function} next - Express next middleware function
+ */
+const getCategoriesJSON = async (req, res, next) => {
+    try {
+        const categories = await getAllCategories();
+        res.json(categories);
+    } catch (error) {
+        next(error);
+    }
+};
+
+// Export ALL controller functions
+export { 
+    showCategoriesPage, 
+    getCategoriesJSON 
+};

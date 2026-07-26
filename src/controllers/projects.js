@@ -1,9 +1,7 @@
 // ============================================
 // Projects Controller
-// Handles project-related page rendering
 // ============================================
 
-// Import model functions
 import { 
     getAllProjects, 
     getUpcomingProjects, 
@@ -89,26 +87,9 @@ const getProjectsJSON = async (req, res, next) => {
     }
 };
 
-/**
- * Get upcoming projects as JSON (API endpoint)
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
- */
-const getUpcomingProjectsJSON = async (req, res, next) => {
-    try {
-        const limit = parseInt(req.query.limit) || NUMBER_OF_UPCOMING_PROJECTS;
-        const projects = await getUpcomingProjects(limit);
-        res.json(projects);
-    } catch (error) {
-        next(error);
-    }
-};
-
-// Export controller functions
+// Export ALL controller functions
 export { 
     showProjectsPage, 
     showProjectDetailsPage,
-    getProjectsJSON,
-    getUpcomingProjectsJSON
+    getProjectsJSON 
 };
