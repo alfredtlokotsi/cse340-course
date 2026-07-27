@@ -6,7 +6,7 @@
 import db from './db.js';
 
 /**
- * Get all categories from the database
+ * Get all active categories with project counts
  * @returns {Promise<Array>} Array of category objects
  */
 const getAllCategories = async () => {
@@ -30,13 +30,13 @@ const getAllCategories = async () => {
         const result = await db.query(query);
         return result.rows;
     } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('❌ Error fetching categories:', error);
         throw error;
     }
 };
 
 /**
- * Get a single category by ID
+ * Get a single category by ID with project count
  * @param {number} id - Category ID
  * @returns {Promise<Object>} Category object
  */
@@ -60,13 +60,13 @@ const getCategoryById = async (id) => {
         const result = await db.query(query, [id]);
         return result.rows[0] || null;
     } catch (error) {
-        console.error('Error fetching category by ID:', error);
+        console.error(`❌ Error fetching category by ID ${id}:`, error);
         throw error;
     }
 };
 
 /**
- * Get projects for a specific category
+ * Get all projects associated with a category
  * @param {number} categoryId - Category ID
  * @returns {Promise<Array>} Array of project objects
  */
@@ -92,7 +92,7 @@ const getProjectsByCategory = async (categoryId) => {
         const result = await db.query(query, [categoryId]);
         return result.rows;
     } catch (error) {
-        console.error('Error fetching projects by category:', error);
+        console.error(`❌ Error fetching projects for category ${categoryId}:`, error);
         throw error;
     }
 };
@@ -115,7 +115,7 @@ const createCategory = async (data) => {
         const result = await db.query(query, [name, description, icon_class, is_active]);
         return result.rows[0];
     } catch (error) {
-        console.error('Error creating category:', error);
+        console.error('❌ Error creating category:', error);
         throw error;
     }
 };
@@ -144,7 +144,7 @@ const updateCategory = async (id, data) => {
         const result = await db.query(query, [name, description, icon_class, is_active, id]);
         return result.rows[0] || null;
     } catch (error) {
-        console.error('Error updating category:', error);
+        console.error(`❌ Error updating category ${id}:`, error);
         throw error;
     }
 };
@@ -165,12 +165,12 @@ const deleteCategory = async (id) => {
         const result = await db.query(query, [id]);
         return result.rows.length > 0;
     } catch (error) {
-        console.error('Error deleting category:', error);
+        console.error(`❌ Error deleting category ${id}:`, error);
         throw error;
     }
 };
 
-// Export ALL functions
+// Export all functions
 export {
     getAllCategories,
     getCategoryById,

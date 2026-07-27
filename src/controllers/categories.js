@@ -8,9 +8,10 @@ import {
     getCategoryById,
     getProjectsByCategory
 } from '../models/categories.js';
+import { formatDate } from '../models/projects.js';
 
 /**
- * Display the categories page
+ * Display the categories listing page
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  * @param {Function} next - Express next middleware function
@@ -25,7 +26,7 @@ const showCategoriesPage = async (req, res, next) => {
             categories 
         });
     } catch (error) {
-        console.error('Error in showCategoriesPage:', error);
+        console.error('❌ Error in showCategoriesPage:', error);
         next(error);
     }
 };
@@ -39,6 +40,7 @@ const showCategoriesPage = async (req, res, next) => {
 const showCategoryDetailPage = async (req, res, next) => {
     try {
         const categoryId = req.params.id;
+        console.log(`🔍 Fetching category detail for ID: ${categoryId}`);
         
         // Validate that the ID is a number
         if (!/^\d+$/.test(categoryId)) {
@@ -47,8 +49,9 @@ const showCategoryDetailPage = async (req, res, next) => {
             return next(err);
         }
         
-        // Get category details and its projects
+        // Get category details
         const category = await getCategoryById(categoryId);
+        console.log(`✅ Category found: ${category ? category.name : 'Not found'}`);
         
         // If category not found, return 404
         if (!category) {
@@ -57,17 +60,21 @@ const showCategoryDetailPage = async (req, res, next) => {
             return next(err);
         }
         
+        // Get projects for this category
         const projects = await getProjectsByCategory(categoryId);
+        console.log(`📋 Found ${projects.length} projects for this category`);
+        
         const title = category.name;
         
+        // Render the category detail view
         res.render('category-detail', {
             title,
             category,
             projects,
-            formatDate: res.locals.formatDate
+            formatDate: formatDate
         });
     } catch (error) {
-        console.error('Error in showCategoryDetailPage:', error);
+        console.error('❌ Error in showCategoryDetailPage:', error);
         next(error);
     }
 };
@@ -83,11 +90,12 @@ const getCategoriesJSON = async (req, res, next) => {
         const categories = await getAllCategories();
         res.json(categories);
     } catch (error) {
+        console.error('❌ Error in getCategoriesJSON:', error);
         next(error);
     }
 };
 
-// Export ALL controller functions
+// Export all controller functions
 export { 
     showCategoriesPage,
     showCategoryDetailPage,

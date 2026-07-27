@@ -7,7 +7,7 @@ import db from './db.js';
 
 /**
  * Get all service projects with their organization names
- * @returns {Promise<Array>} Array of project objects with organization data
+ * @returns {Promise<Array>} Array of project objects
  */
 const getAllProjects = async () => {
     const query = `
@@ -25,7 +25,8 @@ const getAllProjects = async () => {
             sp.updated_at,
             o.name AS organization_name,
             o.logo_filename AS organization_logo,
-            o.contact_email AS organization_email
+            o.contact_email AS organization_email,
+            o.description AS organization_description
         FROM service_projects sp
         INNER JOIN organization o ON sp.organization_id = o.organization_id
         ORDER BY sp.project_date;
@@ -35,7 +36,7 @@ const getAllProjects = async () => {
         const result = await db.query(query);
         return result.rows;
     } catch (error) {
-        console.error('Error fetching projects:', error);
+        console.error('❌ Error fetching all projects:', error);
         throw error;
     }
 };
@@ -66,7 +67,7 @@ const getUpcomingProjects = async (numberOfProjects) => {
         const result = await db.query(query, [numberOfProjects]);
         return result.rows;
     } catch (error) {
-        console.error('Error fetching upcoming projects:', error);
+        console.error('❌ Error fetching upcoming projects:', error);
         throw error;
     }
 };
@@ -103,7 +104,7 @@ const getProjectDetails = async (id) => {
         const result = await db.query(query, [id]);
         return result.rows[0] || null;
     } catch (error) {
-        console.error('Error fetching project details:', error);
+        console.error(`❌ Error fetching project details for ID ${id}:`, error);
         throw error;
     }
 };
@@ -134,7 +135,33 @@ const getProjectsByOrganizationId = async (organizationId) => {
         const result = await db.query(query, [organizationId]);
         return result.rows;
     } catch (error) {
-        console.error('Error fetching projects by organization:', error);
+        console.error(`❌ Error fetching projects for organization ${organizationId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * Get a single service project by ID (basic version)
+ * @param {number} id - Project ID
+ * @returns {Promise<Object>} Project object
+ */
+const getProjectById = async (id) => {
+    const query = `
+        SELECT 
+            sp.*,
+            o.name AS organization_name,
+            o.logo_filename AS organization_logo,
+            o.contact_email AS organization_email
+        FROM service_projects sp
+        INNER JOIN organization o ON sp.organization_id = o.organization_id
+        WHERE sp.project_id = $1;
+    `;
+
+    try {
+        const result = await db.query(query, [id]);
+        return result.rows[0] || null;
+    } catch (error) {
+        console.error(`❌ Error fetching project by ID ${id}:`, error);
         throw error;
     }
 };
@@ -155,11 +182,12 @@ const formatDate = (date) => {
     });
 };
 
-// Export ALL functions
+// Export all functions
 export {
     getAllProjects,
     getUpcomingProjects,
     getProjectDetails,
     getProjectsByOrganizationId,
+    getProjectById,
     formatDate
 };
