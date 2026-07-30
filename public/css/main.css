@@ -1256,4 +1256,143 @@ footer {
     .error-icon {
         font-size: 50px;
     }
+
+}
+/* ============================================
+   Flash Message Styles
+   ============================================ */
+
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.alert {
+    padding: 15px 20px;
+    margin-bottom: 15px;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: slideIn 0.5s ease;
+    position: relative;
+}
+
+.alert i {
+    font-size: 1.3rem;
+    flex-shrink: 0;
+}
+
+.alert .alert-messages {
+    flex: 1;
+}
+
+.alert .alert-messages p {
+    margin: 0;
+    color: inherit;
+    font-size: 1rem;
+}
+
+.alert .alert-close {
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0.7;
+    padding: 5px;
+    transition: opacity 0.3s ease;
+}
+
+.alert .alert-close:hover {
+    opacity: 1;
+}
+
+/* Success */
+.alert-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.alert-success i {
+    color: #28a745;
+}
+
+/* Error */
+.alert-error {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+}
+
+.alert-error i {
+    color: #dc3545;
+}
+
+/* Warning */
+.alert-warning {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+}
+
+.alert-warning i {
+    color: #ffc107;
+}
+
+/* Info */
+.alert-info {
+    color: #0c5460;
+    background-color: #d1ecf1;
+    border-color: #bee5eb;
+}
+
+.alert-info i {
+    color: #17a2b8;
+}
+
+/* Animation */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive Flash Messages */
+@media (max-width: 768px) {
+    .alert {
+        flex-wrap: wrap;
+        padding: 12px 15px;
+    }
+    
+    .alert .alert-messages p {
+        font-size: 0.95rem;
+    }
+    
+    .alert .alert-close {
+        position: absolute;
+        top: 8px;
+        right: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .alert {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+    
+    .alert i {
+        font-size: 1.1rem;
+    }
+    
+    .alert .alert-messages p {
+        font-size: 0.9rem;
+    }
 }

@@ -95,11 +95,19 @@ const processNewOrganizationForm = async (req, res, next) => {
         
         console.log(`✅ Organization created with ID: ${organizationId}`);
         
+        // Set a success flash message
+        req.flash('success', `Organization "${name}" added successfully!`);
+        
         // Redirect to the new organization's detail page
         res.redirect(`/organization/${organizationId}`);
     } catch (error) {
         console.error('❌ Error processing new organization form:', error);
-        next(error);
+        
+        // Set an error flash message
+        req.flash('error', 'Failed to create organization. Please try again.');
+        
+        // Redirect back to the form
+        res.redirect('/new-organization');
     }
 };
 

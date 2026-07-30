@@ -1,22 +1,48 @@
+<!-- ============================================
+     Header Partial
+     Included at the top of every page
+     ============================================ -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %> | CSE 340 Service Network</title>
+    <title><%= title %> - CSE 340 Service Network</title>
     <link rel="stylesheet" href="/css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav>
-        <div class="nav-container">
-            <div class="logo">
-               <span class="logo-text"><img src="/Image/cse340-service-network.png" alt="CSE 340 Service Network Logo">></span>
-            </div>
-            <ul>
-                <li><a href="/" class="<%= title === 'Home' ? 'active' : '' %>">Home</a></li>
-                <li><a href="/organizations" class="<%= title === 'Our Partner Organizations' ? 'active' : '' %>">Organizations</a></li>
-                <li><a href="/projects" class="<%= title === 'Service Projects' ? 'active' : '' %>">Projects</a></li>
-                <li><a href="/categories" class="<%= title === 'Service Project Categories' ? 'active' : '' %>">Categories</a></li>
-            </ul>
-        </div>
+        <ul>
+            <li><a href="/"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="/organizations"><i class="fas fa-building"></i> Organizations</a></li>
+            <li><a href="/projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
+            <li><a href="/categories"><i class="fas fa-tags"></i> Categories</a></li>
+        </ul>
     </nav>
+
+    <!-- Flash Messages -->
+    <div class="flash-messages">
+        <% const messages = flash(); %>
+        <% Object.keys(messages).forEach(type => { %>
+            <% if (messages[type].length > 0) { %>
+                <div class="alert alert-<%= type %>">
+                    <i class="fas <%= 
+                        type === 'success' ? 'fa-check-circle' : 
+                        type === 'error' ? 'fa-exclamation-circle' : 
+                        type === 'warning' ? 'fa-exclamation-triangle' : 
+                        'fa-info-circle' 
+                    %>"></i>
+                    <div class="alert-messages">
+                        <% messages[type].forEach(msg => { %>
+                            <p><%= msg %></p>
+                        <% }); %>
+                    </div>
+                    <button class="alert-close" onclick="this.parentElement.style.display='none'">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            <% } %>
+        <% }); %>
+    </div>
