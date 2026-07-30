@@ -10,6 +10,8 @@ import { showHomePage } from './controllers/index.js';
 import { 
     showOrganizationsPage, 
     showOrganizationDetailsPage,
+    showNewOrganizationForm,
+    processNewOrganizationForm,
     getOrganizationsJSON 
 } from './controllers/organizations.js';
 import { 
@@ -19,7 +21,6 @@ import {
 } from './controllers/projects.js';
 import { 
     showCategoriesPage,
-    showCategoryDetailPage,
     getCategoriesJSON 
 } from './controllers/categories.js';
 import { 
@@ -43,13 +44,16 @@ router.get('/', showHomePage);
 router.get('/organizations', showOrganizationsPage);
 router.get('/organization/:id', showOrganizationDetailsPage);
 
+// New Organization form (GET - display form, POST - process submission)
+router.get('/new-organization', showNewOrganizationForm);      // Display form
+router.post('/new-organization', processNewOrganizationForm);  // Process submission
+
 // Projects pages
 router.get('/projects', showProjectsPage);
 router.get('/project/:id', showProjectDetailsPage);
 
 // Categories pages
 router.get('/categories', showCategoriesPage);
-router.get('/category/:id', showCategoryDetailPage);  // Category detail page
 
 // ============================================
 // API Routes (JSON endpoints)

@@ -1,34 +1,39 @@
 <%- include('partials/header') %>
 
 <main>
+    <h1><%= title %></h1>
+    
     <div class="page-header">
-        <h1>Our Partner Organizations</h1>
-        <p>These organizations are making a difference in our community</p>
+        <p>Here are a few of our partner organizations:</p>
+        <a href="/new-organization" class="btn btn-success btn-sm">
+            <i class="fas fa-plus-circle"></i> Add New Organization
+        </a>
     </div>
-
-    <% if (organizations && organizations.length > 0) { %>
-        <div class="organization-grid">
+    
+    <ul class="organization-list">
+        <% if (organizations && organizations.length > 0) { %>
             <% organizations.forEach(org => { %>
-                <div class="organization-card">
-                    <img class="organization-logo" 
-                         src="/images/<%= org.logo_filename %>" 
-                         alt="<%= org.name %> logo" 
-                         onerror="this.style.display='none'">
-                    <div class="organization-info">
-                        <h2><%= org.name %></h2>
-                        <p><%= org.description %></p>
-                        <a href="mailto:<%= org.contact_email %>" class="organization-email">
-                            ✉️ <%= org.contact_email %>
+                <li>
+                    <img src="/images/<%= org.logo_filename %>" 
+                         alt="<%= org.name %> logo"
+                         onerror="this.src='/images/placeholder-logo.png'">
+                    <div>
+                        <a href="/organization/<%= org.organization_id %>" class="org-link">
+                            <strong><%= org.name %></strong>
                         </a>
+                        <p><%= org.description %></p>
+                        <span><%= org.contact_email %></span>
                     </div>
-                </div>
-            <% }) %>
-        </div>
-    <% } else { %>
-        <p style="text-align: center; color: var(--gray-500); padding: var(--spacing-xl);">
-            No organizations found. Please run the setup.sql script to populate the database.
-        </p>
-    <% } %>
+                </li>
+            <% }); %>
+        <% } else { %>
+            <li>No organizations found. <a href="/new-organization">Add one now!</a></li>
+        <% } %>
+    </ul>
+    
+    <div class="organization-count">
+        <p>Total Organizations: <%= organizations ? organizations.length : 0 %></p>
+    </div>
 </main>
 
 <%- include('partials/footer') %>

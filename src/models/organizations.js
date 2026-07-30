@@ -44,10 +44,44 @@ const getOrganizationDetails = async (organizationId) => {
 
     try {
         const result = await db.query(query, [organizationId]);
-        // Return the first row of the result set, or null if no rows are found
         return result.rows.length > 0 ? result.rows[0] : null;
     } catch (error) {
         console.error('Error fetching organization details:', error);
+        throw error;
+    }
+};
+
+/**
+ * Creates a new organization in the database.
+ * @param {string} name - The name of the organization.
+ * @param {string} description - A description of the organization.
+ * @param {string} contactEmail - The contact email for the organization.
+ * @param {string} logoFilename - The filename of the organization's logo.
+ * @returns {number} The id of the newly created organization record.
+ */
+const createOrganization = async (name, description, contactEmail, logoFilename) => {
+    const query = `
+        INSERT INTO organization (name, description, contact_email, logo_filename)
+        VALUES ($1, $2, $3, $4)
+        RETURNING organization_id
+    `;
+
+    const queryParams = [name, description, contactEmail, logoFilename];
+    
+    try {
+        const result = await db.query(query, queryParams);
+
+        if (result.rows.length === 0) {
+            throw new Error('Failed to create organization');
+        }
+
+        if (process.env.ENABLE_SQL_LOGGING === 'true') {
+            console.log('✅ Created new organization with ID:', result.rows[0].organization_id);
+        }
+
+        return result.rows[0].organization_id;
+    } catch (error) {
+        console.error('❌ Error creating organization:', error);
         throw error;
     }
 };
@@ -79,85 +113,10 @@ const getOrganizationWithProjectCount = async (id) => {
     }
 };
 
-/**
- * Create a new organization
- * @param {Object} data - Organization data
- * @returns {Promise<Object>} Created organization
- */
-const createOrganization = async (data) => {
-    const { name, description, contact_email, logo_filename } = data;
-    
-    const query = `
-        INSERT INTO public.organization (name, description, contact_email, logo_filename)
-        VALUES ($1, $2, $3, $4)
-        RETURNING organization_id, name, description, contact_email, logo_filename;
-    `;
-
-    try {
-        const result = await db.query(query, [name, description, contact_email, logo_filename]);
-        return result.rows[0];
-    } catch (error) {
-        console.error('Error creating organization:', error);
-        throw error;
-    }
-};
-
-/**
- * Update an organization
- * @param {number} id - Organization ID
- * @param {Object} data - Updated organization data
- * @returns {Promise<Object>} Updated organization
- */
-const updateOrganization = async (id, data) => {
-    const { name, description, contact_email, logo_filename } = data;
-    
-    const query = `
-        UPDATE public.organization
-        SET 
-            name = COALESCE($1, name),
-            description = COALESCE($2, description),
-            contact_email = COALESCE($3, contact_email),
-            logo_filename = COALESCE($4, logo_filename)
-        WHERE organization_id = $5
-        RETURNING organization_id, name, description, contact_email, logo_filename;
-    `;
-
-    try {
-        const result = await db.query(query, [name, description, contact_email, logo_filename, id]);
-        return result.rows[0] || null;
-    } catch (error) {
-        console.error('Error updating organization:', error);
-        throw error;
-    }
-};
-
-/**
- * Delete an organization
- * @param {number} id - Organization ID
- * @returns {Promise<boolean>} True if deleted successfully
- */
-const deleteOrganization = async (id) => {
-    const query = `
-        DELETE FROM public.organization
-        WHERE organization_id = $1
-        RETURNING organization_id;
-    `;
-
-    try {
-        const result = await db.query(query, [id]);
-        return result.rows.length > 0;
-    } catch (error) {
-        console.error('Error deleting organization:', error);
-        throw error;
-    }
-};
-
 // Export ALL functions
 export {
     getAllOrganizations,
     getOrganizationDetails,
     getOrganizationWithProjectCount,
-    createOrganization,
-    updateOrganization,
-    deleteOrganization
+    createOrganization
 };

@@ -4,15 +4,13 @@
 
 import { 
     getAllOrganizations, 
-    getOrganizationDetails 
+    getOrganizationDetails,
+    createOrganization 
 } from '../models/organizations.js';
 import { getProjectsByOrganizationId } from '../models/projects.js';
 
 /**
  * Display the organizations list page
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const showOrganizationsPage = async (req, res, next) => {
     try {
@@ -30,9 +28,6 @@ const showOrganizationsPage = async (req, res, next) => {
 
 /**
  * Display the organization details page
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const showOrganizationDetailsPage = async (req, res, next) => {
     try {
@@ -70,10 +65,46 @@ const showOrganizationDetailsPage = async (req, res, next) => {
 };
 
 /**
+ * Display the new organization form
+ */
+const showNewOrganizationForm = async (req, res) => {
+    const title = 'Add New Organization';
+    res.render('new-organization', { title });
+};
+
+/**
+ * Process the new organization form submission
+ */
+const processNewOrganizationForm = async (req, res, next) => {
+    try {
+        const { name, description, contactEmail } = req.body;
+        const logoFilename = 'placeholder-logo.png'; // Use placeholder logo
+        
+        // Log the received data for debugging
+        console.log('📝 Creating new organization:', { name, description, contactEmail });
+        
+        // Validate required fields
+        if (!name || !description || !contactEmail) {
+            const err = new Error('All fields are required: name, description, and contact email');
+            err.status = 400;
+            return next(err);
+        }
+        
+        // Create the organization
+        const organizationId = await createOrganization(name, description, contactEmail, logoFilename);
+        
+        console.log(`✅ Organization created with ID: ${organizationId}`);
+        
+        // Redirect to the new organization's detail page
+        res.redirect(`/organization/${organizationId}`);
+    } catch (error) {
+        console.error('❌ Error processing new organization form:', error);
+        next(error);
+    }
+};
+
+/**
  * Get organizations as JSON (API endpoint)
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const getOrganizationsJSON = async (req, res, next) => {
     try {
@@ -88,5 +119,7 @@ const getOrganizationsJSON = async (req, res, next) => {
 export { 
     showOrganizationsPage, 
     showOrganizationDetailsPage,
+    showNewOrganizationForm,
+    processNewOrganizationForm,
     getOrganizationsJSON 
 };
