@@ -1,11 +1,18 @@
 <%- include('partials/header') %>
 
 <main>
-    <h1><%= title %></h1>
+    <div class="page-header">
+        <div>
+            <h1>Upcoming Service Projects</h1>
+            <p class="upcoming-note">Showing the next <%= projects ? projects.length : 0 %> upcoming projects.</p>
+        </div>
+        <a href="/new-project" class="btn btn-success btn-sm">
+            <i class="fas fa-plus-circle"></i> Add New Project
+        </a>
+    </div>
     
     <div class="projects-header">
         <p>Discover service opportunities in your community. Join us in making a difference!</p>
-        <p class="upcoming-note">Showing the next <%= projects ? projects.length : 0 %> upcoming projects.</p>
     </div>
     
     <% if (projects && projects.length > 0) { %>
@@ -60,7 +67,7 @@
             <div class="empty-icon">📋</div>
             <h3>No Upcoming Projects</h3>
             <p>There are currently no upcoming service projects.</p>
-            <p>Check back later for new opportunities!</p>
+            <p><a href="/new-project">Add a new project</a> to get started!</p>
         </div>
     <% } %>
 </main>

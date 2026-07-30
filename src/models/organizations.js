@@ -20,7 +20,7 @@ const getAllOrganizations = async () => {
         const result = await db.query(query);
         return result.rows;
     } catch (error) {
-        console.error('Error fetching organizations:', error);
+        console.error('❌ Error fetching organizations:', error);
         throw error;
     }
 };
@@ -46,7 +46,7 @@ const getOrganizationDetails = async (organizationId) => {
         const result = await db.query(query, [organizationId]);
         return result.rows.length > 0 ? result.rows[0] : null;
     } catch (error) {
-        console.error('Error fetching organization details:', error);
+        console.error(`❌ Error fetching organization details for ID ${organizationId}:`, error);
         throw error;
     }
 };
@@ -87,28 +87,42 @@ const createOrganization = async (name, description, contactEmail, logoFilename)
 };
 
 /**
- * Get organization with project count
- * @param {number} id - Organization ID
- * @returns {Promise<Object>} Organization with project counts
+ * Updates an existing organization in the database.
+ * @param {number} id - The ID of the organization to update.
+ * @param {string} name - The updated name of the organization.
+ * @param {string} description - The updated description of the organization.
+ * @param {string} contactEmail - The updated contact email for the organization.
+ * @param {string} logoFilename - The updated filename of the organization's logo.
+ * @returns {Promise<Object>} The updated organization record.
  */
-const getOrganizationWithProjectCount = async (id) => {
+const updateOrganization = async (id, name, description, contactEmail, logoFilename) => {
     const query = `
-        SELECT 
-            o.*,
-            COUNT(sp.project_id) AS total_projects,
-            COUNT(sp.project_id) FILTER (WHERE sp.status = 'Active') AS active_projects,
-            COUNT(sp.project_id) FILTER (WHERE sp.status = 'Completed') AS completed_projects
-        FROM organization o
-        LEFT JOIN service_projects sp ON o.organization_id = sp.organization_id
-        WHERE o.organization_id = $1
-        GROUP BY o.organization_id;
+        UPDATE organization
+        SET 
+            name = $1,
+            description = $2,
+            contact_email = $3,
+            logo_filename = $4
+        WHERE organization_id = $5
+        RETURNING organization_id, name, description, contact_email, logo_filename;
     `;
 
+    const queryParams = [name, description, contactEmail, logoFilename, id];
+    
     try {
-        const result = await db.query(query, [id]);
-        return result.rows[0] || null;
+        const result = await db.query(query, queryParams);
+
+        if (result.rows.length === 0) {
+            throw new Error(`Organization with ID ${id} not found`);
+        }
+
+        if (process.env.ENABLE_SQL_LOGGING === 'true') {
+            console.log(`✅ Updated organization with ID: ${id}`);
+        }
+
+        return result.rows[0];
     } catch (error) {
-        console.error('Error fetching organization with project count:', error);
+        console.error(`❌ Error updating organization ${id}:`, error);
         throw error;
     }
 };
@@ -117,6 +131,6 @@ const getOrganizationWithProjectCount = async (id) => {
 export {
     getAllOrganizations,
     getOrganizationDetails,
-    getOrganizationWithProjectCount,
-    createOrganization
+    createOrganization,
+    updateOrganization
 };

@@ -4,16 +4,18 @@
     <h1><%= title %></h1>
     
     <div class="form-container">
-        <p class="form-instructions">Fill out the form below to add a new organization to our network.</p>
+        <p class="form-instructions">Update the organization details below.</p>
         
-        <form action="/new-organization" method="POST" class="organization-form" novalidate>
+        <form action="/edit-organization/<%= organizationDetails.organization_id %>" method="POST" class="organization-form" novalidate>
+            <input type="hidden" name="organizationId" value="<%= organizationDetails.organization_id %>" />
+            
             <div class="form-group">
                 <label for="name">Organization Name <span class="required">*</span></label>
                 <input
                     type="text"
                     id="name"
                     name="name"
-                    placeholder="e.g., Hope Builders International"
+                    value="<%= organizationDetails.name %>"
                     required
                     maxlength="150"
                 />
@@ -27,11 +29,10 @@
                     id="description"
                     name="description"
                     rows="4"
-                    placeholder="Describe the organization's mission and activities"
                     required
                     maxlength="500"
-                ></textarea>
-                <span class="field-note">Maximum 500 characters. <span id="charCount">0</span>/500</span>
+                ><%= organizationDetails.description %></textarea>
+                <span class="field-note">Maximum 500 characters. <span id="charCount"><%= organizationDetails.description ? organizationDetails.description.length : 0 %></span>/500</span>
                 <div class="error-message" id="descriptionError"></div>
             </div>
 
@@ -41,20 +42,31 @@
                     type="email"
                     id="contactEmail"
                     name="contactEmail"
-                    placeholder="e.g., info@hope-builders.org"
+                    value="<%= organizationDetails.contact_email %>"
                     required
                 />
                 <span class="field-note">This email will be displayed on the organization's public page.</span>
                 <div class="error-message" id="emailError"></div>
             </div>
 
-            <input type="hidden" name="logoFilename" value="placeholder-logo.png" />
+            <div class="form-group">
+                <label for="logoFilename">Logo Filename</label>
+                <input
+                    type="text"
+                    id="logoFilename"
+                    name="logoFilename"
+                    value="<%= organizationDetails.logo_filename %>"
+                    placeholder="logo-filename.png"
+                />
+                <span class="field-note">Filename of the organization's logo image in /public/images/</span>
+                <div class="error-message" id="logoError"></div>
+            </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-success">
-                    <i class="fas fa-plus-circle"></i> Create Organization
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Organization
                 </button>
-                <a href="/organizations" class="btn btn-secondary">
+                <a href="/organization/<%= organizationDetails.organization_id %>" class="btn btn-secondary">
                     <i class="fas fa-times"></i> Cancel
                 </a>
             </div>
@@ -62,7 +74,7 @@
         
         <div class="form-footer">
             <p>All fields marked with <span class="required">*</span> are required.</p>
-            <p>A placeholder logo will be automatically assigned to your organization.</p>
+            <p>Changes will be saved to the database and visible immediately.</p>
         </div>
     </div>
 </main>

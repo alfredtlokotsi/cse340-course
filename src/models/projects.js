@@ -167,6 +167,42 @@ const getProjectById = async (id) => {
 };
 
 /**
+ * Create a new service project in the database
+ * @param {string} title - Project title
+ * @param {string} description - Project description
+ * @param {string} location - Project location
+ * @param {string} date - Project date
+ * @param {number} organizationId - ID of the organization
+ * @returns {number} The ID of the newly created project
+ */
+const createProject = async (title, description, location, date, organizationId) => {
+    const query = `
+        INSERT INTO service_projects (title, description, location, project_date, organization_id, status)
+        VALUES ($1, $2, $3, $4, $5, 'Upcoming')
+        RETURNING project_id;
+    `;
+
+    const queryParams = [title, description, location, date, organizationId];
+    
+    try {
+        const result = await db.query(query, queryParams);
+
+        if (result.rows.length === 0) {
+            throw new Error('Failed to create project');
+        }
+
+        if (process.env.ENABLE_SQL_LOGGING === 'true') {
+            console.log('✅ Created new project with ID:', result.rows[0].project_id);
+        }
+
+        return result.rows[0].project_id;
+    } catch (error) {
+        console.error('❌ Error creating project:', error);
+        throw error;
+    }
+};
+
+/**
  * Format date for display
  * @param {Date} date - Date object
  * @returns {string} Formatted date string
@@ -189,5 +225,6 @@ export {
     getProjectDetails,
     getProjectsByOrganizationId,
     getProjectById,
+    createProject,
     formatDate
 };

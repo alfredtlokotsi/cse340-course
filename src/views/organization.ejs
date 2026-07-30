@@ -1,32 +1,71 @@
-<!-- In the service projects section of organization.ejs -->
-<div class="org-detail-section">
-    <h3><i class="fas fa-project-diagram"></i> Service Projects</h3>
-    <% if (projects && projects.length > 0) { %>
-        <ul class="project-list org-projects">
-            <% projects.forEach(project => { %>
-                <li>
-                    <!-- Link to project details page -->
-                    <a href="/project/<%= project.project_id %>">
-                        <strong><%= project.title %></strong>
-                    </a>
-                    <span class="project-date">
-                        <i class="fas fa-calendar-alt"></i>
-                        <%= formatDate(project.project_date) %>
-                    </span>
-                    <p><%= project.description %></p>
-                    <div class="project-meta">
-                        <span class="project-status status-<%= project.status.toLowerCase() %>">
-                            <%= project.status %>
-                        </span>
-                        <span class="project-location">
-                            <i class="fas fa-map-marker-alt"></i>
-                            <%= project.location %>
-                        </span>
-                    </div>
-                </li>
-            <% }); %>
-        </ul>
-    <% } else { %>
-        <p class="no-projects">No service projects currently available for this organization.</p>
-    <% } %>
-</div>
+<%- include('partials/header') %>
+
+<main>
+    <div class="org-details-header">
+        <h1><%= organizationDetails.name %></h1>
+        <div class="org-details-actions">
+            <a href="/organizations" class="btn btn-secondary btn-sm">
+                <i class="fas fa-arrow-left"></i> Back to Organizations
+            </a>
+            <a href="/edit-organization/<%= organizationDetails.organization_id %>" class="btn btn-primary btn-sm">
+                <i class="fas fa-edit"></i> Edit Organization
+            </a>
+        </div>
+    </div>
+    
+    <div class="org-details-container">
+        <div class="org-details-logo">
+            <img src="/Images/<%= organizationDetails.logo_filename %>" 
+                 alt="<%= organizationDetails.name %> logo"
+                 onerror="this.src='/Images/placeholder-logo.png'"
+                 class="org-detail-logo">
+        </div>
+        
+        <div class="org-details-info">
+            <div class="org-detail-section">
+                <h2>About <%= organizationDetails.name %></h2>
+                <p><%= organizationDetails.description %></p>
+            </div>
+            
+            <div class="org-detail-section">
+                <h3><i class="fas fa-envelope"></i> Contact</h3>
+                <p><a href="mailto:<%= organizationDetails.contact_email %>">
+                    <%= organizationDetails.contact_email %>
+                </a></p>
+            </div>
+            
+            <div class="org-detail-section">
+                <h3><i class="fas fa-project-diagram"></i> Service Projects</h3>
+                <% if (projects && projects.length > 0) { %>
+                    <ul class="project-list org-projects">
+                        <% projects.forEach(project => { %>
+                            <li>
+                                <a href="/project/<%= project.project_id %>">
+                                    <strong><%= project.title %></strong>
+                                </a>
+                                <span class="project-date">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    <%= formatDate(project.project_date) %>
+                                </span>
+                                <p><%= project.description %></p>
+                                <div class="project-meta">
+                                    <span class="project-status status-<%= project.status.toLowerCase() %>">
+                                        <%= project.status %>
+                                    </span>
+                                    <span class="project-location">
+                                        <i class="fas fa-map-marker-alt"></i>
+                                        <%= project.location %>
+                                    </span>
+                                </div>
+                            </li>
+                        <% }); %>
+                    </ul>
+                <% } else { %>
+                    <p class="no-projects">No service projects currently available for this organization.</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

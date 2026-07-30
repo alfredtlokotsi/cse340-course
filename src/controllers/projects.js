@@ -1,22 +1,74 @@
 // ============================================
 // Projects Controller
+// Handles project-related page rendering
 // ============================================
 
 import { 
     getAllProjects, 
     getUpcomingProjects, 
     getProjectDetails,
+    createProject,
     formatDate 
 } from '../models/projects.js';
+import { getAllOrganizations } from '../models/organizations.js';
+import { body, validationResult } from 'express-validator';
 
 // Configuration
 const NUMBER_OF_UPCOMING_PROJECTS = 5;
 
+// ============================================
+// Validation Rules
+// ============================================
+
+/**
+ * Validation rules for project form
+ */
+const projectValidation = [
+    body('title')
+        .trim()
+        .notEmpty()
+        .withMessage('Project title is required')
+        .isLength({ min: 3, max: 200 })
+        .withMessage('Project title must be between 3 and 200 characters'),
+    body('description')
+        .trim()
+        .notEmpty()
+        .withMessage('Project description is required')
+        .isLength({ max: 1000 })
+        .withMessage('Project description cannot exceed 1000 characters'),
+    body('location')
+        .trim()
+        .notEmpty()
+        .withMessage('Project location is required')
+        .isLength({ max: 200 })
+        .withMessage('Location cannot exceed 200 characters'),
+    body('date')
+        .notEmpty()
+        .withMessage('Project date is required')
+        .isDate({ format: 'YYYY-MM-DD' })
+        .withMessage('Please provide a valid date in YYYY-MM-DD format')
+        .custom((value) => {
+            const selectedDate = new Date(value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            if (selectedDate < today) {
+                throw new Error('Project date must be today or in the future');
+            }
+            return true;
+        }),
+    body('organizationId')
+        .notEmpty()
+        .withMessage('Please select an organization')
+        .isInt({ min: 1 })
+        .withMessage('Invalid organization selection')
+];
+
+// ============================================
+// Controller Functions
+// ============================================
+
 /**
  * Display the upcoming projects page
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const showProjectsPage = async (req, res, next) => {
     try {
@@ -26,10 +78,9 @@ const showProjectsPage = async (req, res, next) => {
         
         const title = 'Upcoming Service Projects';
         
-        // This passes 'projects' (plural) to the view
         res.render('projects', { 
             title, 
-            projects,  // <-- This should be 'projects' (plural)
+            projects,
             formatDate: formatDate
         });
     } catch (error) {
@@ -37,16 +88,14 @@ const showProjectsPage = async (req, res, next) => {
         next(error);
     }
 };
+
 /**
- * Display the project details page
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
+ * Display a single project detail page
  */
 const showProjectDetailsPage = async (req, res, next) => {
     try {
         const projectId = req.params.id;
-        console.log(`📋 Fetching project details for ID: ${projectId}`);
+        console.log(`🔍 Fetching project details for ID: ${projectId}`);
         
         // Validate that the ID is a number
         if (!/^\d+$/.test(projectId)) {
@@ -68,10 +117,9 @@ const showProjectDetailsPage = async (req, res, next) => {
         
         const title = project.title;
         
-        // Make sure you're passing 'project' (singular) to the view
         res.render('project', {
             title,
-            project,  // <-- This must be 'project' (singular)
+            project,
             formatDate: formatDate
         });
     } catch (error) {
@@ -79,24 +127,94 @@ const showProjectDetailsPage = async (req, res, next) => {
         next(error);
     }
 };
+
+/**
+ * Display the new project form
+ */
+const showNewProjectForm = async (req, res, next) => {
+    try {
+        // Get all organizations for the dropdown
+        const organizations = await getAllOrganizations();
+        const title = 'Add New Service Project';
+        
+        res.render('new-project', {
+            title,
+            organizations
+        });
+    } catch (error) {
+        console.error('❌ Error in showNewProjectForm:', error);
+        next(error);
+    }
+};
+
+/**
+ * Process the new project form submission with validation
+ */
+const processNewProjectForm = async (req, res, next) => {
+    try {
+        // Check for validation errors
+        const results = validationResult(req);
+        if (!results.isEmpty()) {
+            // Validation failed - loop through errors and add to flash
+            results.array().forEach((error) => {
+                req.flash('error', error.msg);
+            });
+
+            // Redirect back to the new project form
+            return res.redirect('/new-project');
+        }
+
+        // Validation passed - process the form data
+        const { title, description, location, date, organizationId } = req.body;
+        
+        console.log('📝 Creating new project:', { 
+            title, 
+            description, 
+            location, 
+            date, 
+            organizationId 
+        });
+        
+        // Create the project
+        const projectId = await createProject(title, description, location, date, organizationId);
+        
+        console.log(`✅ Project created with ID: ${projectId}`);
+        
+        // Set a success flash message
+        req.flash('success', `Project "${title}" added successfully!`);
+        
+        // Redirect to the projects list page
+        res.redirect('/projects');
+    } catch (error) {
+        console.error('❌ Error processing new project form:', error);
+        
+        // Set an error flash message
+        req.flash('error', 'Failed to create project. Please try again.');
+        
+        // Redirect back to the form
+        res.redirect('/new-project');
+    }
+};
+
 /**
  * Get all projects as JSON (API endpoint)
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const getProjectsJSON = async (req, res, next) => {
     try {
         const projects = await getAllProjects();
         res.json(projects);
     } catch (error) {
+        console.error('❌ Error in getProjectsJSON:', error);
         next(error);
     }
 };
 
-// Export ALL controller functions
+// Export all controller functions
 export { 
     showProjectsPage, 
     showProjectDetailsPage,
-    getProjectsJSON 
+    showNewProjectForm,
+    processNewProjectForm,
+    projectValidation,
+    getProjectsJSON
 };

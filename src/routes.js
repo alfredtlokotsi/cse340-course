@@ -4,19 +4,23 @@
 // ============================================
 
 import express from 'express';
-
-// Import controllers
 import { showHomePage } from './controllers/index.js';
 import { 
     showOrganizationsPage, 
     showOrganizationDetailsPage,
     showNewOrganizationForm,
     processNewOrganizationForm,
+    showEditOrganizationForm,
+    processEditOrganizationForm,
+    organizationValidation,
     getOrganizationsJSON 
 } from './controllers/organizations.js';
 import { 
     showProjectsPage, 
     showProjectDetailsPage,
+    showNewProjectForm,
+    processNewProjectForm,
+    projectValidation,
     getProjectsJSON 
 } from './controllers/projects.js';
 import { 
@@ -30,7 +34,6 @@ import {
     handleError 
 } from './controllers/errors.js';
 
-// Create router instance
 const router = express.Router();
 
 // ============================================
@@ -45,12 +48,20 @@ router.get('/organizations', showOrganizationsPage);
 router.get('/organization/:id', showOrganizationDetailsPage);
 
 // New Organization form (GET - display form, POST - process submission)
-router.get('/new-organization', showNewOrganizationForm);      // Display form
-router.post('/new-organization', processNewOrganizationForm);  // Process submission
+router.get('/new-organization', showNewOrganizationForm);
+router.post('/new-organization', organizationValidation, processNewOrganizationForm);
+
+// Edit Organization form (GET - display form, POST - process submission)
+router.get('/edit-organization/:id', showEditOrganizationForm);
+router.post('/edit-organization/:id', organizationValidation, processEditOrganizationForm);
 
 // Projects pages
 router.get('/projects', showProjectsPage);
 router.get('/project/:id', showProjectDetailsPage);
+
+// New Project form
+router.get('/new-project', showNewProjectForm);
+router.post('/new-project', projectValidation, processNewProjectForm);
 
 // Categories pages
 router.get('/categories', showCategoriesPage);
@@ -74,11 +85,10 @@ router.get('/test-404', test404Error);
 // Error Handling Routes
 // ============================================
 
-// Catch-all route for 404 errors
+// Catch-all route for 404 errors (MUST be after all regular routes)
 router.use(show404Page);
 
-// Global error handler
+// Global error handler (MUST be last)
 router.use(handleError);
 
-// Export the router
 export default router;

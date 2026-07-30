@@ -1,10 +1,11 @@
 <%- include('partials/header') %>
 
 <main>
-    <h1><%= title %></h1>
-    
     <div class="page-header">
-        <p>Here are a few of our partner organizations:</p>
+        <div>
+            <h1>Our Partner Organizations</h1>
+            <p>Here are a few of our partner organizations:</p>
+        </div>
         <a href="/new-organization" class="btn btn-success btn-sm">
             <i class="fas fa-plus-circle"></i> Add New Organization
         </a>
@@ -14,9 +15,9 @@
         <% if (organizations && organizations.length > 0) { %>
             <% organizations.forEach(org => { %>
                 <li>
-                    <img src="/images/<%= org.logo_filename %>" 
+                    <img src="/Images/<%= org.logo_filename %>" 
                          alt="<%= org.name %> logo"
-                         onerror="this.src='/images/placeholder-logo.png'">
+                         onerror="this.src='/Images/placeholder-logo.png'">
                     <div>
                         <a href="/organization/<%= org.organization_id %>" class="org-link">
                             <strong><%= org.name %></strong>
