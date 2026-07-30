@@ -10,9 +10,17 @@
     <% } else { %>
         <div class="project-details-header">
             <h1><%= project.title %></h1>
-            <a href="/projects" class="btn btn-secondary btn-sm">
-                <i class="fas fa-arrow-left"></i> Back to Projects
-            </a>
+            <div class="project-details-actions">
+                <a href="/projects" class="btn btn-secondary btn-sm">
+                    <i class="fas fa-arrow-left"></i> Back to Projects
+                </a>
+                <a href="/edit-project/<%= project.project_id %>" class="btn btn-primary btn-sm">
+                    <i class="fas fa-edit"></i> Edit Project
+                </a>
+                <a href="/project/<%= project.project_id %>/assign-categories" class="btn btn-info btn-sm">
+                    <i class="fas fa-tags"></i> Edit Categories
+                </a>
+            </div>
         </div>
         
         <div class="project-details-container">
@@ -62,11 +70,16 @@
                             </span>
                             volunteers registered
                         </p>
-                        <% if (project.max_volunteers) { 
-                            const filledPercentage = Math.min((project.current_volunteers || 0) / project.max_volunteers * 100, 100);
+                        <%
+                            let filledPercentage = 0;
+                            if (project.max_volunteers && project.current_volunteers) {
+                                filledPercentage = Math.min((project.current_volunteers / project.max_volunteers) * 100, 100);
+                            }
+                            const progressStyle = 'width: ' + Math.round(filledPercentage) + '%';
                         %>
+                        <% if (project.max_volunteers) { %>
                             <div class="progress-bar">
-                                <div class="progress-fill" style="width: <%= filledPercentage %>%"></div>
+                                <div class="progress-fill" style="<%= progressStyle %>"></div>
                             </div>
                             <p class="progress-text">
                                 <%= Math.round(filledPercentage) %>% filled
@@ -83,7 +96,8 @@
                 <a href="/organization/<%= project.organization_id %>" class="btn btn-primary">
                     <i class="fas fa-building"></i> View Organization
                 </a>
-                <button class="btn btn-success" onclick="registerForProject(<%= project.project_id %>)">
+                <!-- FIXED: Use a data attribute instead of onclick -->
+                <button class="btn btn-success" data-project-id="<%= project.project_id %>" id="registerBtn">
                     <i class="fas fa-hand-paper"></i> Register for this Project
                 </button>
             </div>
@@ -94,9 +108,16 @@
 <%- include('partials/footer') %>
 
 <script>
-    function registerForProject(projectId) {
-        if (confirm('Would you like to register for this service project?')) {
-            alert('Thank you for registering! You will be contacted with more details.');
+    // Wait for the DOM to load before attaching event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        const registerBtn = document.getElementById('registerBtn');
+        if (registerBtn) {
+            registerBtn.addEventListener('click', function() {
+                const projectId = this.getAttribute('data-project-id');
+                if (confirm('Would you like to register for this service project?')) {
+                    alert('Thank you for registering! You will be contacted with more details.');
+                }
+            });
         }
-    }
+    });
 </script>

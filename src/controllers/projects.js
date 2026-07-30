@@ -8,21 +8,19 @@ import {
     getUpcomingProjects, 
     getProjectDetails,
     createProject,
-    formatDate 
+    updateProject,
+    formatDate,
+    formatDateForInput
 } from '../models/projects.js';
 import { getAllOrganizations } from '../models/organizations.js';
 import { body, validationResult } from 'express-validator';
 
-// Configuration
 const NUMBER_OF_UPCOMING_PROJECTS = 5;
 
 // ============================================
 // Validation Rules
 // ============================================
 
-/**
- * Validation rules for project form
- */
 const projectValidation = [
     body('title')
         .trim()
@@ -197,6 +195,132 @@ const processNewProjectForm = async (req, res, next) => {
 };
 
 /**
+ * Display the edit project form
+ */
+const showEditProjectForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.id;
+        console.log(`📝 Loading edit form for project ID: ${projectId}`);
+        
+        // Validate that the ID is a number
+        if (!/^\d+$/.test(projectId)) {
+            const err = new Error('Invalid project ID');
+            err.status = 400;
+            return next(err);
+        }
+        
+        // Get project details
+        const project = await getProjectDetails(projectId);
+        
+        // If project not found, return 404
+        if (!project) {
+            const err = new Error('Project not found');
+            err.status = 404;
+            return next(err);
+        }
+        
+        // Get all organizations for the dropdown
+        const organizations = await getAllOrganizations();
+        
+        const title = `Edit Project: ${project.title}`;
+        
+        // Format the date for the date input
+        const formattedDate = formatDateForInput(project.project_date);
+        
+        res.render('edit-project', {
+            title,
+            project,
+            organizations,
+            formattedDate,
+            formatDate: formatDate
+        });
+    } catch (error) {
+        console.error('❌ Error in showEditProjectForm:', error);
+        next(error);
+    }
+};
+
+/**
+ * Process the edit project form submission with validation
+ */
+const processEditProjectForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.id;
+        console.log(`📝 Processing edit form for project ID: ${projectId}`);
+        
+        // Validate that the ID is a number
+        if (!/^\d+$/.test(projectId)) {
+            const err = new Error('Invalid project ID');
+            err.status = 400;
+            return next(err);
+        }
+        
+        // Check for validation errors
+        const results = validationResult(req);
+        if (!results.isEmpty()) {
+            // Validation failed - loop through errors and add to flash
+            results.array().forEach((error) => {
+                req.flash('error', error.msg);
+            });
+            // Redirect back to the edit project form
+            return res.redirect(`/edit-project/${projectId}`);
+        }
+
+        // Validation passed - process the form data
+        const { 
+            title, 
+            description, 
+            location, 
+            date, 
+            organizationId,
+            status,
+            maxVolunteers,
+            currentVolunteers
+        } = req.body;
+        
+        console.log(`📝 Updating project ${projectId}:`, { 
+            title, 
+            description, 
+            location, 
+            date, 
+            organizationId,
+            status,
+            maxVolunteers,
+            currentVolunteers
+        });
+        
+        // Update the project
+        const updatedProject = await updateProject(
+            projectId,
+            title,
+            description,
+            location,
+            date,
+            organizationId,
+            status || 'Upcoming',
+            maxVolunteers || 0,
+            currentVolunteers || 0
+        );
+        
+        console.log(`✅ Project ${projectId} updated successfully`);
+        
+        // Set a success flash message
+        req.flash('success', `Project "${title}" updated successfully!`);
+        
+        // Redirect to the project's detail page
+        res.redirect(`/project/${projectId}`);
+    } catch (error) {
+        console.error('❌ Error processing edit project form:', error);
+        
+        // Set an error flash message
+        req.flash('error', 'Failed to update project. Please try again.');
+        
+        // Redirect back to the edit form
+        res.redirect(`/edit-project/${req.params.id}`);
+    }
+};
+
+/**
  * Get all projects as JSON (API endpoint)
  */
 const getProjectsJSON = async (req, res, next) => {
@@ -215,6 +339,8 @@ export {
     showProjectDetailsPage,
     showNewProjectForm,
     processNewProjectForm,
+    showEditProjectForm,
+    processEditProjectForm,
     projectValidation,
     getProjectsJSON
 };

@@ -203,6 +203,56 @@ const createProject = async (title, description, location, date, organizationId)
 };
 
 /**
+ * Update an existing service project in the database
+ * @param {number} id - Project ID
+ * @param {string} title - Updated project title
+ * @param {string} description - Updated project description
+ * @param {string} location - Updated project location
+ * @param {string} date - Updated project date
+ * @param {number} organizationId - Updated organization ID
+ * @param {string} status - Updated project status
+ * @param {number} maxVolunteers - Updated max volunteers
+ * @param {number} currentVolunteers - Updated current volunteers
+ * @returns {Promise<Object>} The updated project record
+ */
+const updateProject = async (id, title, description, location, date, organizationId, status, maxVolunteers, currentVolunteers) => {
+    const query = `
+        UPDATE service_projects
+        SET 
+            title = $1,
+            description = $2,
+            location = $3,
+            project_date = $4,
+            organization_id = $5,
+            status = $6,
+            max_volunteers = $7,
+            current_volunteers = $8,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE project_id = $9
+        RETURNING project_id, title, description, location, project_date, organization_id, status, max_volunteers, current_volunteers;
+    `;
+
+    const queryParams = [title, description, location, date, organizationId, status, maxVolunteers, currentVolunteers, id];
+    
+    try {
+        const result = await db.query(query, queryParams);
+
+        if (result.rows.length === 0) {
+            throw new Error(`Project with ID ${id} not found`);
+        }
+
+        if (process.env.ENABLE_SQL_LOGGING === 'true') {
+            console.log(`✅ Updated project with ID: ${id}`);
+        }
+
+        return result.rows[0];
+    } catch (error) {
+        console.error(`❌ Error updating project ${id}:`, error);
+        throw error;
+    }
+};
+
+/**
  * Format date for display
  * @param {Date} date - Date object
  * @returns {string} Formatted date string
@@ -218,6 +268,17 @@ const formatDate = (date) => {
     });
 };
 
+/**
+ * Format date for input (YYYY-MM-DD)
+ * @param {Date} date - Date object
+ * @returns {string} Formatted date string for input
+ */
+const formatDateForInput = (date) => {
+    if (!date) return '';
+    const d = new Date(date);
+    return d.toISOString().split('T')[0];
+};
+
 // Export all functions
 export {
     getAllProjects,
@@ -226,5 +287,7 @@ export {
     getProjectsByOrganizationId,
     getProjectById,
     createProject,
-    formatDate
+    updateProject,
+    formatDate,
+    formatDateForInput
 };

@@ -20,11 +20,15 @@ import {
     showProjectDetailsPage,
     showNewProjectForm,
     processNewProjectForm,
+    showEditProjectForm,
+    processEditProjectForm,
     projectValidation,
     getProjectsJSON 
 } from './controllers/projects.js';
 import { 
     showCategoriesPage,
+    showAssignCategoriesForm,
+    processAssignCategoriesForm,
     getCategoriesJSON 
 } from './controllers/categories.js';
 import { 
@@ -47,11 +51,11 @@ router.get('/', showHomePage);
 router.get('/organizations', showOrganizationsPage);
 router.get('/organization/:id', showOrganizationDetailsPage);
 
-// New Organization form (GET - display form, POST - process submission)
+// New Organization form
 router.get('/new-organization', showNewOrganizationForm);
 router.post('/new-organization', organizationValidation, processNewOrganizationForm);
 
-// Edit Organization form (GET - display form, POST - process submission)
+// Edit Organization form
 router.get('/edit-organization/:id', showEditOrganizationForm);
 router.post('/edit-organization/:id', organizationValidation, processEditOrganizationForm);
 
@@ -63,8 +67,16 @@ router.get('/project/:id', showProjectDetailsPage);
 router.get('/new-project', showNewProjectForm);
 router.post('/new-project', projectValidation, processNewProjectForm);
 
+// Edit Project form
+router.get('/edit-project/:id', showEditProjectForm);
+router.post('/edit-project/:id', projectValidation, processEditProjectForm);
+
 // Categories pages
 router.get('/categories', showCategoriesPage);
+
+// Assign Categories to Project
+router.get('/project/:projectId/assign-categories', showAssignCategoriesForm);
+router.post('/project/:projectId/assign-categories', processAssignCategoriesForm);
 
 // ============================================
 // API Routes (JSON endpoints)
@@ -85,10 +97,10 @@ router.get('/test-404', test404Error);
 // Error Handling Routes
 // ============================================
 
-// Catch-all route for 404 errors (MUST be after all regular routes)
+// Catch-all route for 404 errors
 router.use(show404Page);
 
-// Global error handler (MUST be last)
+// Global error handler
 router.use(handleError);
 
 export default router;

@@ -1,0 +1,73 @@
+<%- include('partials/header') %>
+
+<main>
+    <div class="assign-categories-header">
+        <h1><%= title %></h1>
+        <a href="/project/<%= project.project_id %>" class="btn btn-secondary btn-sm">
+            <i class="fas fa-arrow-left"></i> Back to Project
+        </a>
+    </div>
+    
+    <div class="form-container">
+        <p class="form-instructions">
+            Select the categories that apply to this project. 
+            Checked categories will be assigned to the project.
+        </p>
+        
+        <form action="/project/<%= project.project_id %>/assign-categories" method="POST" class="assign-categories-form">
+            <div class="form-group">
+                <label>Project</label>
+                <p class="project-info">
+                    <strong><%= project.title %></strong>
+                    <span class="project-org">(Organization: <%= project.organization_name %>)</span>
+                </p>
+            </div>
+            
+            <div class="form-group">
+                <label>Categories</label>
+                <div class="categories-checkbox-grid">
+                    <% if (allCategories && allCategories.length > 0) { %>
+                        <% allCategories.forEach(category => { 
+                            const isChecked = assignedCategoryIds && assignedCategoryIds.includes(category.category_id);
+                        %>
+                            <div class="checkbox-item">
+                                <input 
+                                    type="checkbox" 
+                                    id="category_<%= category.category_id %>" 
+                                    name="categories" 
+                                    value="<%= category.category_id %>"
+                                    <%= isChecked ? 'checked' : '' %>
+                                >
+                                <label for="category_<%= category.category_id %>">
+                                    <i class="<%= category.icon_class || 'fas fa-tag' %>"></i>
+                                    <%= category.name %>
+                                </label>
+                                <% if (category.description) { %>
+                                    <span class="category-desc"><%= category.description %></span>
+                                <% } %>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <p class="no-categories">No categories available. Please create categories first.</p>
+                    <% } %>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Save Categories
+                </button>
+                <a href="/project/<%= project.project_id %>" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+        
+        <div class="form-footer">
+            <p>Categories help users find projects that match their interests.</p>
+            <p>You can assign multiple categories to each project.</p>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>

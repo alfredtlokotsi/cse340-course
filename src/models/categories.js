@@ -6,7 +6,7 @@
 import db from './db.js';
 
 /**
- * Get all active categories with project counts
+ * Get all active categories from the database
  * @returns {Promise<Array>} Array of category objects
  */
 const getAllCategories = async () => {
@@ -36,7 +36,7 @@ const getAllCategories = async () => {
 };
 
 /**
- * Get a single category by ID with project count
+ * Get a single category by ID
  * @param {number} id - Category ID
  * @returns {Promise<Object>} Category object
  */
@@ -66,106 +66,90 @@ const getCategoryById = async (id) => {
 };
 
 /**
- * Get all projects associated with a category
- * @param {number} categoryId - Category ID
- * @returns {Promise<Array>} Array of project objects
+ * Get categories assigned to a specific project
+ * @param {number} projectId - Project ID
+ * @returns {Promise<Array>} Array of category objects
  */
-const getProjectsByCategory = async (categoryId) => {
+const getCategoriesByServiceProjectId = async (projectId) => {
     const query = `
         SELECT 
-            sp.project_id,
-            sp.title,
-            sp.description,
-            sp.location,
-            sp.project_date,
-            sp.status,
-            o.name AS organization_name,
-            o.organization_id
-        FROM service_projects sp
-        INNER JOIN project_categories pc ON sp.project_id = pc.project_id
-        INNER JOIN organization o ON sp.organization_id = o.organization_id
-        WHERE pc.category_id = $1
-        ORDER BY sp.project_date;
+            c.category_id,
+            c.name,
+            c.description,
+            c.icon_class
+        FROM categories c
+        INNER JOIN project_categories pc ON c.category_id = pc.category_id
+        WHERE pc.project_id = $1
+        ORDER BY c.name;
     `;
 
     try {
-        const result = await db.query(query, [categoryId]);
+        const result = await db.query(query, [projectId]);
         return result.rows;
     } catch (error) {
-        console.error(`❌ Error fetching projects for category ${categoryId}:`, error);
+        console.error(`❌ Error fetching categories for project ${projectId}:`, error);
         throw error;
     }
 };
 
 /**
- * Create a new category
- * @param {Object} data - Category data
- * @returns {Promise<Object>} Created category
+ * Assign a category to a project
+ * @param {number} projectId - Project ID
+ * @param {number} categoryId - Category ID
+ * @returns {Promise<Object>} The assignment result
  */
-const createCategory = async (data) => {
-    const { name, description, icon_class, is_active } = data;
-    
+const assignCategoryToProject = async (projectId, categoryId) => {
     const query = `
-        INSERT INTO categories (name, description, icon_class, is_active)
-        VALUES ($1, $2, $3, COALESCE($4, true))
+        INSERT INTO project_categories (project_id, category_id)
+        VALUES ($1, $2)
+        ON CONFLICT (project_id, category_id) DO NOTHING
         RETURNING *;
     `;
 
     try {
-        const result = await db.query(query, [name, description, icon_class, is_active]);
-        return result.rows[0];
-    } catch (error) {
-        console.error('❌ Error creating category:', error);
-        throw error;
-    }
-};
-
-/**
- * Update a category
- * @param {number} id - Category ID
- * @param {Object} data - Updated category data
- * @returns {Promise<Object>} Updated category
- */
-const updateCategory = async (id, data) => {
-    const { name, description, icon_class, is_active } = data;
-    
-    const query = `
-        UPDATE categories
-        SET 
-            name = COALESCE($1, name),
-            description = COALESCE($2, description),
-            icon_class = COALESCE($3, icon_class),
-            is_active = COALESCE($4, is_active)
-        WHERE category_id = $5
-        RETURNING *;
-    `;
-
-    try {
-        const result = await db.query(query, [name, description, icon_class, is_active, id]);
+        const result = await db.query(query, [projectId, categoryId]);
         return result.rows[0] || null;
     } catch (error) {
-        console.error(`❌ Error updating category ${id}:`, error);
+        console.error(`❌ Error assigning category ${categoryId} to project ${projectId}:`, error);
         throw error;
     }
 };
 
 /**
- * Delete a category
- * @param {number} id - Category ID
- * @returns {Promise<boolean>} True if deleted successfully
+ * Update all category assignments for a project
+ * @param {number} projectId - Project ID
+ * @param {Array} categoryIds - Array of category IDs to assign
+ * @returns {Promise<void>}
  */
-const deleteCategory = async (id) => {
-    const query = `
-        DELETE FROM categories
-        WHERE category_id = $1
-        RETURNING category_id;
+const updateCategoryAssignments = async (projectId, categoryIds) => {
+    // First, delete all existing assignments
+    const deleteQuery = `
+        DELETE FROM project_categories
+        WHERE project_id = $1;
     `;
 
     try {
-        const result = await db.query(query, [id]);
-        return result.rows.length > 0;
+        await db.query(deleteQuery, [projectId]);
+
+        // If there are no categories to assign, we're done
+        if (!categoryIds || categoryIds.length === 0) {
+            return;
+        }
+
+        // Then, insert each new assignment
+        // Ensure categoryIds is an array and filter out empty values
+        const ids = Array.isArray(categoryIds) ? categoryIds : [categoryIds];
+        const validIds = ids.filter(id => id && id !== '');
+
+        for (const categoryId of validIds) {
+            await assignCategoryToProject(projectId, parseInt(categoryId));
+        }
+
+        if (process.env.ENABLE_SQL_LOGGING === 'true') {
+            console.log(`✅ Updated category assignments for project ${projectId}`);
+        }
     } catch (error) {
-        console.error(`❌ Error deleting category ${id}:`, error);
+        console.error(`❌ Error updating category assignments for project ${projectId}:`, error);
         throw error;
     }
 };
@@ -174,8 +158,7 @@ const deleteCategory = async (id) => {
 export {
     getAllCategories,
     getCategoryById,
-    getProjectsByCategory,
-    createCategory,
-    updateCategory,
-    deleteCategory
+    getCategoriesByServiceProjectId,
+    assignCategoryToProject,
+    updateCategoryAssignments
 };

@@ -1,0 +1,291 @@
+<%- include('partials/header') %>
+
+<main>
+    <h1><%= title %></h1>
+    
+    <div class="form-container">
+        <p class="form-instructions">Update the project details below.</p>
+        
+        <form action="/edit-project/<%= project.project_id %>" method="POST" class="project-form" novalidate>
+            <!-- Hidden field for project ID -->
+            <input type="hidden" name="projectId" value="<%= project.project_id %>" />
+            
+            <div class="form-group">
+                <label for="organizationId">Organization <span class="required">*</span></label>
+                <select id="organizationId" name="organizationId" required>
+                    <option value="">-- Select an Organization --</option>
+                    <% if (organizations && organizations.length > 0) { %>
+                        <% organizations.forEach(org => { %>
+                            <option value="<%= org.organization_id %>" 
+                                <%= project.organization_id === org.organization_id ? 'selected' : '' %>>
+                                <%= org.name %>
+                            </option>
+                        <% }); %>
+                    <% } else { %>
+                        <option value="" disabled>No organizations available</option>
+                    <% } %>
+                </select>
+                <span class="field-note">Select the organization sponsoring this project.</span>
+                <div class="error-message" id="orgError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="title">Project Title <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value="<%= project.title %>"
+                    required
+                    maxlength="200"
+                />
+                <span class="field-note">Must be between 3 and 200 characters.</span>
+                <div class="error-message" id="titleError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description <span class="required">*</span></label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="4"
+                    required
+                    maxlength="1000"
+                ><%= project.description %></textarea>
+                <span class="field-note">Maximum 1000 characters. <span id="charCount"><%= project.description ? project.description.length : 0 %></span>/1000</span>
+                <div class="error-message" id="descriptionError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="location"
+                    name="location"
+                    value="<%= project.location %>"
+                    required
+                    maxlength="200"
+                />
+                <span class="field-note">Address or description of where the project will take place.</span>
+                <div class="error-message" id="locationError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="date">Project Date <span class="required">*</span></label>
+                <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    value="<%= formattedDate %>"
+                    required
+                    min="<%= new Date().toISOString().split('T')[0] %>"
+                />
+                <span class="field-note">Date must be today or in the future.</span>
+                <div class="error-message" id="dateError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="Planning" <%= project.status === 'Planning' ? 'selected' : '' %>>Planning</option>
+                    <option value="Upcoming" <%= project.status === 'Upcoming' ? 'selected' : '' %>>Upcoming</option>
+                    <option value="Active" <%= project.status === 'Active' ? 'selected' : '' %>>Active</option>
+                    <option value="Completed" <%= project.status === 'Completed' ? 'selected' : '' %>>Completed</option>
+                    <option value="Cancelled" <%= project.status === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                </select>
+                <span class="field-note">Current status of the project.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="maxVolunteers">Max Volunteers</label>
+                <input
+                    type="number"
+                    id="maxVolunteers"
+                    name="maxVolunteers"
+                    value="<%= project.max_volunteers || '' %>"
+                    min="0"
+                />
+                <span class="field-note">Maximum number of volunteers needed. Leave empty for unlimited.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="currentVolunteers">Current Volunteers</label>
+                <input
+                    type="number"
+                    id="currentVolunteers"
+                    name="currentVolunteers"
+                    value="<%= project.current_volunteers || 0 %>"
+                    min="0"
+                />
+                <span class="field-note">Number of volunteers currently registered.</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Project
+                </button>
+                <a href="/project/<%= project.project_id %>" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+        
+        <div class="form-footer">
+            <p>All fields marked with <span class="required">*</span> are required.</p>
+            <p>Changes will be saved to the database and visible immediately.</p>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.project-form');
+        const orgSelect = document.getElementById('organizationId');
+        const titleInput = document.getElementById('title');
+        const descriptionInput = document.getElementById('description');
+        const locationInput = document.getElementById('location');
+        const dateInput = document.getElementById('date');
+        const charCount = document.getElementById('charCount');
+
+        // Character counter for description
+        descriptionInput.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            charCount.style.color = count > 1000 ? '#e74c3c' : '#6c757d';
+        });
+
+        function validateOrg(input) {
+            const errorEl = document.getElementById('orgError');
+            if (!input.value || input.value === '') {
+                input.classList.add('error');
+                errorEl.textContent = 'Please select an organization';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateTitle(input) {
+            const errorEl = document.getElementById('titleError');
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Title is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length < 3) {
+                input.classList.add('error');
+                errorEl.textContent = 'Title must be at least 3 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 200) {
+                input.classList.add('error');
+                errorEl.textContent = 'Title cannot exceed 200 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateDescription(input) {
+            const errorEl = document.getElementById('descriptionError');
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Description is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 1000) {
+                input.classList.add('error');
+                errorEl.textContent = 'Description cannot exceed 1000 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateLocation(input) {
+            const errorEl = document.getElementById('locationError');
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Location is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 200) {
+                input.classList.add('error');
+                errorEl.textContent = 'Location cannot exceed 200 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateDate(input) {
+            const errorEl = document.getElementById('dateError');
+            if (!input.value) {
+                input.classList.add('error');
+                errorEl.textContent = 'Date is required';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                const selectedDate = new Date(input.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                    input.classList.add('error');
+                    errorEl.textContent = 'Date must be today or in the future';
+                    errorEl.classList.add('show');
+                    return false;
+                } else {
+                    input.classList.remove('error');
+                    errorEl.textContent = '';
+                    errorEl.classList.remove('show');
+                    return true;
+                }
+            }
+        }
+
+        orgSelect.addEventListener('change', function() { validateOrg(this); });
+        titleInput.addEventListener('blur', function() { validateTitle(this); });
+        titleInput.addEventListener('input', function() { if (this.value.length > 0) validateTitle(this); });
+        descriptionInput.addEventListener('blur', function() { validateDescription(this); });
+        descriptionInput.addEventListener('input', function() { if (this.value.length > 0) validateDescription(this); });
+        locationInput.addEventListener('blur', function() { validateLocation(this); });
+        locationInput.addEventListener('input', function() { if (this.value.length > 0) validateLocation(this); });
+        dateInput.addEventListener('blur', function() { validateDate(this); });
+        dateInput.addEventListener('change', function() { validateDate(this); });
+
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            if (!validateOrg(orgSelect)) isValid = false;
+            if (!validateTitle(titleInput)) isValid = false;
+            if (!validateDescription(descriptionInput)) isValid = false;
+            if (!validateLocation(locationInput)) isValid = false;
+            if (!validateDate(dateInput)) isValid = false;
+            if (!isValid) {
+                e.preventDefault();
+                const firstError = form.querySelector('.form-group input.error, .form-group textarea.error, .form-group select.error');
+                if (firstError) firstError.focus();
+            }
+        });
+    });
+</script>

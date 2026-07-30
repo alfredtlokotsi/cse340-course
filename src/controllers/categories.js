@@ -5,26 +5,19 @@
 
 import { 
     getAllCategories,
-    getCategoryById,
-    getProjectsByCategory
+    getCategoriesByServiceProjectId,
+    updateCategoryAssignments
 } from '../models/categories.js';
-import { formatDate } from '../models/projects.js';
+import { getProjectDetails } from '../models/projects.js';
 
 /**
  * Display the categories listing page
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const showCategoriesPage = async (req, res, next) => {
     try {
         const categories = await getAllCategories();
         const title = 'Service Categories';
-        
-        res.render('categories', { 
-            title, 
-            categories 
-        });
+        res.render('categories', { title, categories });
     } catch (error) {
         console.error('❌ Error in showCategoriesPage:', error);
         next(error);
@@ -32,72 +25,118 @@ const showCategoriesPage = async (req, res, next) => {
 };
 
 /**
- * Display a single category detail page with its projects
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
+ * Display the assign categories form
  */
-const showCategoryDetailPage = async (req, res, next) => {
+const showAssignCategoriesForm = async (req, res, next) => {
     try {
-        const categoryId = req.params.id;
-        console.log(`🔍 Fetching category detail for ID: ${categoryId}`);
-        
+        const projectId = req.params.projectId;
+        console.log(`📋 Loading assign categories form for project ID: ${projectId}`);
+
         // Validate that the ID is a number
-        if (!/^\d+$/.test(categoryId)) {
-            const err = new Error('Invalid category ID');
+        if (!/^\d+$/.test(projectId)) {
+            const err = new Error('Invalid project ID');
             err.status = 400;
             return next(err);
         }
-        
-        // Get category details
-        const category = await getCategoryById(categoryId);
-        console.log(`✅ Category found: ${category ? category.name : 'Not found'}`);
-        
-        // If category not found, return 404
-        if (!category) {
-            const err = new Error('Category not found');
+
+        // Get project details
+        const project = await getProjectDetails(projectId);
+
+        // If project not found, return 404
+        if (!project) {
+            const err = new Error('Project not found');
             err.status = 404;
             return next(err);
         }
-        
-        // Get projects for this category
-        const projects = await getProjectsByCategory(categoryId);
-        console.log(`📋 Found ${projects.length} projects for this category`);
-        
-        const title = category.name;
-        
-        // Render the category detail view
-        res.render('category-detail', {
+
+        // Get all categories
+        const allCategories = await getAllCategories();
+
+        // Get categories already assigned to this project
+        const assignedCategories = await getCategoriesByServiceProjectId(projectId);
+        const assignedCategoryIds = assignedCategories.map(c => c.category_id);
+
+        const title = `Assign Categories to Project: ${project.title}`;
+
+        res.render('assign-categories', {
             title,
-            category,
-            projects,
-            formatDate: formatDate
+            project,
+            allCategories,
+            assignedCategoryIds
         });
     } catch (error) {
-        console.error('❌ Error in showCategoryDetailPage:', error);
+        console.error('❌ Error in showAssignCategoriesForm:', error);
         next(error);
     }
 };
 
 /**
+ * Process the assign categories form submission
+ */
+const processAssignCategoriesForm = async (req, res, next) => {
+    try {
+        const projectId = req.params.projectId;
+        console.log(`📝 Processing category assignments for project ID: ${projectId}`);
+
+        // Validate that the ID is a number
+        if (!/^\d+$/.test(projectId)) {
+            const err = new Error('Invalid project ID');
+            err.status = 400;
+            return next(err);
+        }
+
+        // Get selected category IDs from the form
+        // req.body.categories will be an array if multiple checkboxes are selected
+        let categoryIds = req.body.categories;
+
+        // If no categories selected, pass an empty array
+        if (!categoryIds) {
+            categoryIds = [];
+        } else if (!Array.isArray(categoryIds)) {
+            // If only one checkbox is selected, it comes as a string
+            categoryIds = [categoryIds];
+        }
+
+        // Get project details for the success message
+        const project = await getProjectDetails(projectId);
+
+        // Update the category assignments
+        await updateCategoryAssignments(projectId, categoryIds);
+
+        console.log(`✅ Category assignments updated for project: ${project.title}`);
+
+        // Set a success flash message
+        req.flash('success', `Categories updated successfully for "${project.title}"!`);
+
+        // Redirect to the project details page
+        res.redirect(`/project/${projectId}`);
+    } catch (error) {
+        console.error('❌ Error in processAssignCategoriesForm:', error);
+
+        // Set an error flash message
+        req.flash('error', 'Failed to update categories. Please try again.');
+
+        // Redirect back to the assign categories form
+        res.redirect(`/project/${req.params.projectId}/assign-categories`);
+    }
+};
+
+/**
  * Get categories as JSON (API endpoint)
- * @param {Object} req - Express request object
- * @param {Object} res - Express response object
- * @param {Function} next - Express next middleware function
  */
 const getCategoriesJSON = async (req, res, next) => {
     try {
         const categories = await getAllCategories();
         res.json(categories);
     } catch (error) {
-        console.error('❌ Error in getCategoriesJSON:', error);
         next(error);
     }
 };
 
 // Export all controller functions
-export { 
+export {
     showCategoriesPage,
-    showCategoryDetailPage,
+    showAssignCategoriesForm,
+    processAssignCategoriesForm,
     getCategoriesJSON
 };
