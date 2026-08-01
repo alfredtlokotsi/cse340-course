@@ -7,12 +7,9 @@ import {
     getAllCategories,
     getCategoryById,
     getCategoriesByServiceProjectId,
-<<<<<<< HEAD
-=======
     createCategory,
     updateCategory,
     deleteCategory,
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
     updateCategoryAssignments
 } from '../models/categories.js';
 import { getProjectDetails, getProjectsByCategory, formatDate } from '../models/projects.js';
@@ -94,8 +91,6 @@ const showProjectsByCategory = async (req, res, next) => {
 };
 
 /**
-<<<<<<< HEAD
-=======
  * Display the new category form
  */
 const showNewCategoryForm = async (req, res) => {
@@ -242,7 +237,6 @@ const processEditCategoryForm = async (req, res, next) => {
 };
 
 /**
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
  * Display the assign categories form
  */
 const showAssignCategoriesForm = async (req, res, next) => {
@@ -250,39 +244,21 @@ const showAssignCategoriesForm = async (req, res, next) => {
         const projectId = req.params.projectId;
         console.log(`📋 Loading assign categories form for project ID: ${projectId}`);
 
-<<<<<<< HEAD
-        // Validate that the ID is a number
-=======
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
         if (!/^\d+$/.test(projectId)) {
             const err = new Error('Invalid project ID');
             err.status = 400;
             return next(err);
         }
 
-<<<<<<< HEAD
-        // Get project details
         const project = await getProjectDetails(projectId);
 
-        // If project not found, return 404
-=======
-        const project = await getProjectDetails(projectId);
-
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
         if (!project) {
             const err = new Error('Project not found');
             err.status = 404;
             return next(err);
         }
 
-<<<<<<< HEAD
-        // Get all categories
         const allCategories = await getAllCategories();
-
-        // Get categories already assigned to this project
-=======
-        const allCategories = await getAllCategories();
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
         const assignedCategories = await getCategoriesByServiceProjectId(projectId);
         const assignedCategoryIds = assignedCategories.map(c => c.category_id);
 
@@ -308,34 +284,12 @@ const processAssignCategoriesForm = async (req, res, next) => {
         const projectId = req.params.projectId;
         console.log(`📝 Processing category assignments for project ID: ${projectId}`);
 
-<<<<<<< HEAD
-        // Validate that the ID is a number
-=======
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
         if (!/^\d+$/.test(projectId)) {
             const err = new Error('Invalid project ID');
             err.status = 400;
             return next(err);
         }
 
-<<<<<<< HEAD
-        // Get selected category IDs from the form
-        // req.body.categories will be an array if multiple checkboxes are selected
-        let categoryIds = req.body.categories;
-
-        // If no categories selected, pass an empty array
-        if (!categoryIds) {
-            categoryIds = [];
-        } else if (!Array.isArray(categoryIds)) {
-            // If only one checkbox is selected, it comes as a string
-            categoryIds = [categoryIds];
-        }
-
-        // Get project details for the success message
-        const project = await getProjectDetails(projectId);
-
-        // Update the category assignments
-=======
         let categoryIds = req.body.categories;
 
         if (!categoryIds) {
@@ -346,31 +300,15 @@ const processAssignCategoriesForm = async (req, res, next) => {
 
         const project = await getProjectDetails(projectId);
 
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
         await updateCategoryAssignments(projectId, categoryIds);
 
         console.log(`✅ Category assignments updated for project: ${project.title}`);
 
-<<<<<<< HEAD
-        // Set a success flash message
-        req.flash('success', `Categories updated successfully for "${project.title}"!`);
-
-        // Redirect to the project details page
-        res.redirect(`/project/${projectId}`);
-    } catch (error) {
-        console.error('❌ Error in processAssignCategoriesForm:', error);
-
-        // Set an error flash message
-        req.flash('error', 'Failed to update categories. Please try again.');
-
-        // Redirect back to the assign categories form
-=======
         req.flash('success', `Categories updated successfully for "${project.title}"!`);
         res.redirect(`/project/${projectId}`);
     } catch (error) {
         console.error('❌ Error in processAssignCategoriesForm:', error);
         req.flash('error', 'Failed to update categories. Please try again.');
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
         res.redirect(`/project/${req.params.projectId}/assign-categories`);
     }
 };
@@ -391,13 +329,10 @@ const getCategoriesJSON = async (req, res, next) => {
 export {
     showCategoriesPage,
     showProjectsByCategory,
-<<<<<<< HEAD
-=======
     showNewCategoryForm,
     processNewCategoryForm,
     showEditCategoryForm,
     processEditCategoryForm,
->>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
     showAssignCategoriesForm,
     processAssignCategoriesForm,
     categoryValidation,
