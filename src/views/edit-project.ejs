@@ -137,3 +137,154 @@
 </main>
 
 <%- include('partials/footer') %>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('.project-form');
+        const orgSelect = document.getElementById('organizationId');
+        const titleInput = document.getElementById('title');
+        const descriptionInput = document.getElementById('description');
+        const locationInput = document.getElementById('location');
+        const dateInput = document.getElementById('date');
+        const charCount = document.getElementById('charCount');
+
+        // Character counter for description
+        descriptionInput.addEventListener('input', function() {
+            const count = this.value.length;
+            charCount.textContent = count;
+            charCount.style.color = count > 1000 ? '#e74c3c' : '#6c757d';
+        });
+
+        function validateOrg(input) {
+            const errorEl = document.getElementById('orgError');
+            if (!input.value || input.value === '') {
+                input.classList.add('error');
+                errorEl.textContent = 'Please select an organization';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateTitle(input) {
+            const errorEl = document.getElementById('titleError');
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Title is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length < 3) {
+                input.classList.add('error');
+                errorEl.textContent = 'Title must be at least 3 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 200) {
+                input.classList.add('error');
+                errorEl.textContent = 'Title cannot exceed 200 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateDescription(input) {
+            const errorEl = document.getElementById('descriptionError');
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Description is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 1000) {
+                input.classList.add('error');
+                errorEl.textContent = 'Description cannot exceed 1000 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateLocation(input) {
+            const errorEl = document.getElementById('locationError');
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Location is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 200) {
+                input.classList.add('error');
+                errorEl.textContent = 'Location cannot exceed 200 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        function validateDate(input) {
+            const errorEl = document.getElementById('dateError');
+            if (!input.value) {
+                input.classList.add('error');
+                errorEl.textContent = 'Date is required';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                const selectedDate = new Date(input.value);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                if (selectedDate < today) {
+                    input.classList.add('error');
+                    errorEl.textContent = 'Date must be today or in the future';
+                    errorEl.classList.add('show');
+                    return false;
+                } else {
+                    input.classList.remove('error');
+                    errorEl.textContent = '';
+                    errorEl.classList.remove('show');
+                    return true;
+                }
+            }
+        }
+
+        orgSelect.addEventListener('change', function() { validateOrg(this); });
+        titleInput.addEventListener('blur', function() { validateTitle(this); });
+        titleInput.addEventListener('input', function() { if (this.value.length > 0) validateTitle(this); });
+        descriptionInput.addEventListener('blur', function() { validateDescription(this); });
+        descriptionInput.addEventListener('input', function() { if (this.value.length > 0) validateDescription(this); });
+        locationInput.addEventListener('blur', function() { validateLocation(this); });
+        locationInput.addEventListener('input', function() { if (this.value.length > 0) validateLocation(this); });
+        dateInput.addEventListener('blur', function() { validateDate(this); });
+        dateInput.addEventListener('change', function() { validateDate(this); });
+
+        form.addEventListener('submit', function(e) {
+            let isValid = true;
+            if (!validateOrg(orgSelect)) isValid = false;
+            if (!validateTitle(titleInput)) isValid = false;
+            if (!validateDescription(descriptionInput)) isValid = false;
+            if (!validateLocation(locationInput)) isValid = false;
+            if (!validateDate(dateInput)) isValid = false;
+            if (!isValid) {
+                e.preventDefault();
+                const firstError = form.querySelector('.form-group input.error, .form-group textarea.error, .form-group select.error');
+                if (firstError) firstError.focus();
+            }
+        });
+    });
+</script>

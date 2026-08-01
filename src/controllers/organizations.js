@@ -8,7 +8,7 @@ import {
     createOrganization,
     updateOrganization
 } from '../models/organizations.js';
-import { getProjectsByOrganizationId } from '../models/projects.js';
+import { getProjectsByOrganizationId, formatDate } from '../models/projects.js';
 import { body, validationResult } from 'express-validator';
 
 const organizationValidation = [
@@ -45,26 +45,34 @@ const showOrganizationsPage = async (req, res, next) => {
 const showOrganizationDetailsPage = async (req, res, next) => {
     try {
         const organizationId = req.params.id;
+        console.log(`🔍 Fetching organization details for ID: ${organizationId}`);
+        
         if (!/^\d+$/.test(organizationId)) {
             const err = new Error('Invalid organization ID');
             err.status = 400;
             return next(err);
         }
+        
         const organizationDetails = await getOrganizationDetails(organizationId);
+        
         if (!organizationDetails) {
             const err = new Error('Organization not found');
             err.status = 404;
             return next(err);
         }
+        
         const projects = await getProjectsByOrganizationId(organizationId);
         const title = organizationDetails.name;
+        
+        // Pass formatDate to the view
         res.render('organization', {
             title,
             organizationDetails,
             projects,
-            formatDate: res.locals.formatDate
+            formatDate: formatDate  // <-- Add this line
         });
     } catch (error) {
+        console.error('❌ Error in showOrganizationDetailsPage:', error);
         next(error);
     }
 };
@@ -83,9 +91,12 @@ const processNewOrganizationForm = async (req, res, next) => {
             });
             return res.redirect('/new-organization');
         }
+        
         const { name, description, contactEmail } = req.body;
         const logoFilename = 'placeholder-logo.png';
+        
         const organizationId = await createOrganization(name, description, contactEmail, logoFilename);
+        
         req.flash('success', `Organization "${name}" added successfully!`);
         res.redirect(`/organization/${organizationId}`);
     } catch (error) {
@@ -98,19 +109,28 @@ const processNewOrganizationForm = async (req, res, next) => {
 const showEditOrganizationForm = async (req, res, next) => {
     try {
         const organizationId = req.params.id;
+        console.log(`📝 Loading edit form for organization ID: ${organizationId}`);
+        
         if (!/^\d+$/.test(organizationId)) {
             const err = new Error('Invalid organization ID');
             err.status = 400;
             return next(err);
         }
+        
         const organizationDetails = await getOrganizationDetails(organizationId);
+        
         if (!organizationDetails) {
             const err = new Error('Organization not found');
             err.status = 404;
             return next(err);
         }
+        
         const title = `Edit ${organizationDetails.name}`;
-        res.render('edit-organization', { title, organizationDetails });
+        
+        res.render('edit-organization', {
+            title,
+            organizationDetails
+        });
     } catch (error) {
         console.error('❌ Error in showEditOrganizationForm:', error);
         next(error);
@@ -120,11 +140,14 @@ const showEditOrganizationForm = async (req, res, next) => {
 const processEditOrganizationForm = async (req, res, next) => {
     try {
         const organizationId = req.params.id;
+        console.log(`📝 Processing edit form for organization ID: ${organizationId}`);
+        
         if (!/^\d+$/.test(organizationId)) {
             const err = new Error('Invalid organization ID');
             err.status = 400;
             return next(err);
         }
+        
         const results = validationResult(req);
         if (!results.isEmpty()) {
             results.array().forEach((error) => {
@@ -132,8 +155,11 @@ const processEditOrganizationForm = async (req, res, next) => {
             });
             return res.redirect(`/edit-organization/${organizationId}`);
         }
+
         const { name, description, contactEmail, logoFilename } = req.body;
-        await updateOrganization(organizationId, name, description, contactEmail, logoFilename);
+        
+        await updateOrganization(organizationId, name, description, contactEmail, logoFilename || 'placeholder-logo.png');
+        
         req.flash('success', `Organization "${name}" updated successfully!`);
         res.redirect(`/organization/${organizationId}`);
     } catch (error) {

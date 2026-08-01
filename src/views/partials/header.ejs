@@ -1,3 +1,8 @@
+<!-- ============================================
+     Header Partial
+     Included at the top of every page
+     ============================================ -->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -28,6 +33,7 @@
         </div>
     </nav>
 
+    <!-- Flash Messages -->
     <div class="flash-messages">
         <% const messages = flash(); %>
         <% Object.keys(messages).forEach(type => { %>
