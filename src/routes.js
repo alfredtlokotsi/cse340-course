@@ -28,6 +28,13 @@ import {
 import { 
     showCategoriesPage,
     showProjectsByCategory,
+<<<<<<< HEAD
+=======
+    showNewCategoryForm,
+    processNewCategoryForm,
+    showEditCategoryForm,
+    processEditCategoryForm,
+>>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
     showAssignCategoriesForm,
     processAssignCategoriesForm,
     categoryValidation,
@@ -79,6 +86,17 @@ router.get('/categories', showCategoriesPage);
 // Category Projects page (NEW - shows projects for a specific category)
 router.get('/category/:id', showProjectsByCategory);
 
+<<<<<<< HEAD
+=======
+// New Category form
+router.get('/new-category', showNewCategoryForm);
+router.post('/new-category', categoryValidation, processNewCategoryForm);
+
+// Edit Category form
+router.get('/edit-category/:id', showEditCategoryForm);
+router.post('/edit-category/:id', categoryValidation, processEditCategoryForm);
+
+>>>>>>> d6f15702ef03d07d31e064960a8d630a4aad21ed
 // Assign Categories to Project
 router.get('/project/:projectId/assign-categories', showAssignCategoriesForm);
 router.post('/project/:projectId/assign-categories', processAssignCategoriesForm);
