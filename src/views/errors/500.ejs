@@ -9,14 +9,20 @@
         <p>Please try again later.</p>
         
         <div class="error-actions">
-            <a href="/" class="btn btn-primary">Return to Home</a>
-            <a href="javascript:location.reload()" class="btn btn-secondary">Try Again</a>
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i> Return to Home
+            </a>
+            <a href="javascript:location.reload()" class="btn btn-secondary">
+                <i class="fas fa-sync"></i> Try Again
+            </a>
         </div>
         
         <% if (NODE_ENV === 'development') { %>
             <div class="error-details">
                 <h3>🔧 Error Details (Development Only)</h3>
+                <p><strong>Status:</strong> <%= status || 500 %></p>
                 <p><strong>Message:</strong> <%= error || 'Unknown error' %></p>
+                <p><strong>Timestamp:</strong> <%= timestamp %></p>
                 <% if (stack) { %>
                     <details open>
                         <summary>Stack Trace</summary>

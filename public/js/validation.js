@@ -4,7 +4,7 @@
 
 document.addEventListener('DOMContentLoaded', function() {
     // ============================================
-    // Organization Form Validation (new & edit)
+    // Organization Form Validation
     // ============================================
     
     const orgForms = document.querySelectorAll('.organization-form');
@@ -331,6 +331,56 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================
+    // Category Form Validation
+    // ============================================
+
+    const categoryForms = document.querySelectorAll('.category-form');
+    categoryForms.forEach(form => {
+        const nameInput = form.querySelector('#name');
+
+        function validateCategoryName(input) {
+            const errorEl = document.getElementById('nameError');
+            if (!errorEl) return true;
+            const value = input.value.trim();
+            if (value.length === 0) {
+                input.classList.add('error');
+                errorEl.textContent = 'Category name is required';
+                errorEl.classList.add('show');
+                return false;
+            } else if (value.length > 100) {
+                input.classList.add('error');
+                errorEl.textContent = 'Category name cannot exceed 100 characters';
+                errorEl.classList.add('show');
+                return false;
+            } else if (!/^[a-zA-Z0-9\s\-&']+$/.test(value)) {
+                input.classList.add('error');
+                errorEl.textContent = 'Category name contains invalid characters';
+                errorEl.classList.add('show');
+                return false;
+            } else {
+                input.classList.remove('error');
+                errorEl.textContent = '';
+                errorEl.classList.remove('show');
+                return true;
+            }
+        }
+
+        if (nameInput) {
+            nameInput.addEventListener('blur', function() { validateCategoryName(this); });
+            nameInput.addEventListener('input', function() {
+                if (this.value.length > 0) validateCategoryName(this);
+            });
+        }
+
+        form.addEventListener('submit', function(e) {
+            if (nameInput && !validateCategoryName(nameInput)) {
+                e.preventDefault();
+                nameInput.focus();
+            }
+        });
+    });
+
+    // ============================================
     // Flash Message Close Buttons
     // ============================================
 
@@ -339,14 +389,4 @@ document.addEventListener('DOMContentLoaded', function() {
             this.parentElement.style.display = 'none';
         });
     });
-
-    // ============================================
-    // Project Registration Function
-    // ============================================
-
-    window.registerForProject = function(projectId) {
-        if (confirm('Would you like to register for this service project?')) {
-            alert('Thank you for registering! You will be contacted with more details.');
-        }
-    };
 });

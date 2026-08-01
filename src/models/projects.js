@@ -1,14 +1,9 @@
 // ============================================
 // Service Projects Model
-// Handles all service project database operations
 // ============================================
 
 import db from './db.js';
 
-/**
- * Get all service projects with their organization names
- * @returns {Promise<Array>} Array of project objects
- */
 const getAllProjects = async () => {
     const query = `
         SELECT 
@@ -41,11 +36,6 @@ const getAllProjects = async () => {
     }
 };
 
-/**
- * Get upcoming service projects (limited to specified number)
- * @param {number} numberOfProjects - Maximum number of projects to return
- * @returns {Promise<Array>} Array of upcoming project objects
- */
 const getUpcomingProjects = async (numberOfProjects) => {
     const query = `
         SELECT 
@@ -72,11 +62,6 @@ const getUpcomingProjects = async (numberOfProjects) => {
     }
 };
 
-/**
- * Get projects by category ID
- * @param {number} categoryId - Category ID
- * @returns {Promise<Array>} Array of project objects with organization data
- */
 const getProjectsByCategory = async (categoryId) => {
     const query = `
         SELECT 
@@ -113,11 +98,6 @@ const getProjectsByCategory = async (categoryId) => {
     }
 };
 
-/**
- * Get a single service project by ID with organization details
- * @param {number} id - Project ID
- * @returns {Promise<Object>} Project object with organization data
- */
 const getProjectDetails = async (id) => {
     const query = `
         SELECT 
@@ -150,11 +130,6 @@ const getProjectDetails = async (id) => {
     }
 };
 
-/**
- * Get projects by organization ID
- * @param {number} organizationId - Organization ID
- * @returns {Promise<Array>} Array of project objects
- */
 const getProjectsByOrganizationId = async (organizationId) => {
     const query = `
         SELECT
@@ -181,11 +156,6 @@ const getProjectsByOrganizationId = async (organizationId) => {
     }
 };
 
-/**
- * Get a single service project by ID (basic version)
- * @param {number} id - Project ID
- * @returns {Promise<Object>} Project object
- */
 const getProjectById = async (id) => {
     const query = `
         SELECT 
@@ -207,15 +177,6 @@ const getProjectById = async (id) => {
     }
 };
 
-/**
- * Create a new service project in the database
- * @param {string} title - Project title
- * @param {string} description - Project description
- * @param {string} location - Project location
- * @param {string} date - Project date
- * @param {number} organizationId - ID of the organization
- * @returns {number} The ID of the newly created project
- */
 const createProject = async (title, description, location, date, organizationId) => {
     const query = `
         INSERT INTO service_projects (title, description, location, project_date, organization_id, status)
@@ -227,15 +188,9 @@ const createProject = async (title, description, location, date, organizationId)
     
     try {
         const result = await db.query(query, queryParams);
-
         if (result.rows.length === 0) {
             throw new Error('Failed to create project');
         }
-
-        if (process.env.ENABLE_SQL_LOGGING === 'true') {
-            console.log('✅ Created new project with ID:', result.rows[0].project_id);
-        }
-
         return result.rows[0].project_id;
     } catch (error) {
         console.error('❌ Error creating project:', error);
@@ -243,19 +198,6 @@ const createProject = async (title, description, location, date, organizationId)
     }
 };
 
-/**
- * Update an existing service project in the database
- * @param {number} id - Project ID
- * @param {string} title - Updated project title
- * @param {string} description - Updated project description
- * @param {string} location - Updated project location
- * @param {string} date - Updated project date
- * @param {number} organizationId - Updated organization ID
- * @param {string} status - Updated project status
- * @param {number} maxVolunteers - Updated max volunteers
- * @param {number} currentVolunteers - Updated current volunteers
- * @returns {Promise<Object>} The updated project record
- */
 const updateProject = async (id, title, description, location, date, organizationId, status, maxVolunteers, currentVolunteers) => {
     const query = `
         UPDATE service_projects
@@ -277,15 +219,9 @@ const updateProject = async (id, title, description, location, date, organizatio
     
     try {
         const result = await db.query(query, queryParams);
-
         if (result.rows.length === 0) {
             throw new Error(`Project with ID ${id} not found`);
         }
-
-        if (process.env.ENABLE_SQL_LOGGING === 'true') {
-            console.log(`✅ Updated project with ID: ${id}`);
-        }
-
         return result.rows[0];
     } catch (error) {
         console.error(`❌ Error updating project ${id}:`, error);
@@ -293,11 +229,48 @@ const updateProject = async (id, title, description, location, date, organizatio
     }
 };
 
-/**
- * Format date for display
- * @param {Date} date - Date object
- * @returns {string} Formatted date string
- */
+const registerVolunteer = async (projectId, userId = 1) => {
+    const checkQuery = `
+        SELECT project_id, title, max_volunteers, current_volunteers
+        FROM service_projects
+        WHERE project_id = $1;
+    `;
+
+    const checkResult = await db.query(checkQuery, [projectId]);
+    
+    if (checkResult.rows.length === 0) {
+        throw new Error('Project not found');
+    }
+
+    const project = checkResult.rows[0];
+    
+    if (project.max_volunteers && project.current_volunteers >= project.max_volunteers) {
+        throw new Error('Project is full. No more volunteers can register.');
+    }
+
+    const updateQuery = `
+        UPDATE service_projects
+        SET 
+            current_volunteers = current_volunteers + 1,
+            updated_at = CURRENT_TIMESTAMP
+        WHERE project_id = $1
+        RETURNING project_id, title, current_volunteers, max_volunteers;
+    `;
+
+    try {
+        const result = await db.query(updateQuery, [projectId]);
+
+        if (result.rows.length === 0) {
+            throw new Error(`Project with ID ${projectId} not found`);
+        }
+
+        return result.rows[0];
+    } catch (error) {
+        console.error(`❌ Error registering volunteer for project ${projectId}:`, error);
+        throw error;
+    }
+};
+
 const formatDate = (date) => {
     if (!date) return 'Date TBD';
     const d = new Date(date);
@@ -309,18 +282,12 @@ const formatDate = (date) => {
     });
 };
 
-/**
- * Format date for input (YYYY-MM-DD)
- * @param {Date} date - Date object
- * @returns {string} Formatted date string for input
- */
 const formatDateForInput = (date) => {
     if (!date) return '';
     const d = new Date(date);
     return d.toISOString().split('T')[0];
 };
 
-// Export all functions
 export {
     getAllProjects,
     getUpcomingProjects,
@@ -330,6 +297,7 @@ export {
     getProjectById,
     createProject,
     updateProject,
+    registerVolunteer,
     formatDate,
     formatDateForInput
 };

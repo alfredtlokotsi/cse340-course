@@ -10,9 +10,27 @@
             <p><strong>Requested URL:</strong> <%= requestedUrl %></p>
         <% } %>
         <div class="error-actions">
-            <a href="/" class="btn btn-primary">Return to Home</a>
-            <a href="javascript:history.back()" class="btn btn-secondary">Go Back</a>
+            <a href="/" class="btn btn-primary">
+                <i class="fas fa-home"></i> Return to Home
+            </a>
+            <a href="javascript:history.back()" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Go Back
+            </a>
         </div>
+        <% if (NODE_ENV === 'development') { %>
+            <div class="error-details">
+                <h3>🔧 Debug Information (Development Only)</h3>
+                <p><strong>Status:</strong> <%= status || 404 %></p>
+                <p><strong>Message:</strong> <%= error || 'Page Not Found' %></p>
+                <p><strong>Timestamp:</strong> <%= timestamp %></p>
+                <% if (stack) { %>
+                    <details open>
+                        <summary>Stack Trace</summary>
+                        <pre><%= stack %></pre>
+                    </details>
+                <% } %>
+            </div>
+        <% } %>
     </div>
 </main>
 

@@ -1,0 +1,76 @@
+<%- include('partials/header') %>
+
+<main>
+    <h1><%= title %></h1>
+    
+    <div class="form-container">
+        <p class="form-instructions">Update the category details below.</p>
+        
+        <form action="/edit-category/<%= category.category_id %>" method="POST" class="category-form" novalidate>
+            <input type="hidden" name="categoryId" value="<%= category.category_id %>" />
+            
+            <div class="form-group">
+                <label for="name">Category Name <span class="required">*</span></label>
+                <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value="<%= category.name %>"
+                    required
+                    maxlength="100"
+                />
+                <span class="field-note">Must be between 3 and 100 characters.</span>
+                <div class="error-message" id="nameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea
+                    id="description"
+                    name="description"
+                    rows="3"
+                    placeholder="Describe what this category covers"
+                    maxlength="500"
+                ><%= category.description || '' %></textarea>
+                <span class="field-note">Optional description of the category.</span>
+            </div>
+
+            <div class="form-group">
+                <label for="iconClass">Icon Class</label>
+                <input
+                    type="text"
+                    id="iconClass"
+                    name="iconClass"
+                    value="<%= category.icon_class || 'fas fa-tag' %>"
+                    placeholder="fas fa-tag"
+                    maxlength="50"
+                />
+                <span class="field-note">Font Awesome icon class (e.g., fas fa-leaf, fas fa-users).</span>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label>
+                    <input type="checkbox" id="isActive" name="isActive" <%= category.is_active ? 'checked' : '' %>>
+                    <span>Active</span>
+                </label>
+                <span class="field-note">Inactive categories will not appear in the categories list.</span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Update Category
+                </button>
+                <a href="/categories" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+            </div>
+        </form>
+        
+        <div class="form-footer">
+            <p>All fields marked with <span class="required">*</span> are required.</p>
+            <p>Changes will be saved to the database and visible immediately.</p>
+        </div>
+    </div>
+</main>
+
+<%- include('partials/footer') %>
