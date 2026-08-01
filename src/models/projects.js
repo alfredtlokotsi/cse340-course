@@ -73,6 +73,47 @@ const getUpcomingProjects = async (numberOfProjects) => {
 };
 
 /**
+ * Get projects by category ID
+ * @param {number} categoryId - Category ID
+ * @returns {Promise<Array>} Array of project objects with organization data
+ */
+const getProjectsByCategory = async (categoryId) => {
+    const query = `
+        SELECT 
+            sp.project_id,
+            sp.organization_id,
+            sp.title,
+            sp.description,
+            sp.location,
+            sp.project_date,
+            sp.status,
+            sp.max_volunteers,
+            sp.current_volunteers,
+            sp.created_at,
+            sp.updated_at,
+            o.name AS organization_name,
+            o.logo_filename AS organization_logo,
+            o.contact_email AS organization_email,
+            o.description AS organization_description,
+            c.name AS category_name
+        FROM service_projects sp
+        INNER JOIN organization o ON sp.organization_id = o.organization_id
+        INNER JOIN project_categories pc ON sp.project_id = pc.project_id
+        INNER JOIN categories c ON pc.category_id = c.category_id
+        WHERE pc.category_id = $1
+        ORDER BY sp.project_date;
+    `;
+
+    try {
+        const result = await db.query(query, [categoryId]);
+        return result.rows;
+    } catch (error) {
+        console.error(`❌ Error fetching projects for category ${categoryId}:`, error);
+        throw error;
+    }
+};
+
+/**
  * Get a single service project by ID with organization details
  * @param {number} id - Project ID
  * @returns {Promise<Object>} Project object with organization data
@@ -283,6 +324,7 @@ const formatDateForInput = (date) => {
 export {
     getAllProjects,
     getUpcomingProjects,
+    getProjectsByCategory,
     getProjectDetails,
     getProjectsByOrganizationId,
     getProjectById,

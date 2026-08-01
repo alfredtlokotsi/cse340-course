@@ -15,9 +15,9 @@
         <% if (organizations && organizations.length > 0) { %>
             <% organizations.forEach(org => { %>
                 <li>
-                    <img src="/Images/<%= org.logo_filename %>" 
+                    <img src="/Image/<%= org.logo_filename %>" 
                          alt="<%= org.name %> logo"
-                         onerror="this.src='/Images/placeholder-logo.png'">
+                         onerror="this.src='/Image/placeholder-logo.png'">
                     <div>
                         <a href="/organization/<%= org.organization_id %>" class="org-link">
                             <strong><%= org.name %></strong>

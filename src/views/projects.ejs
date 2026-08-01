@@ -32,6 +32,11 @@
                     </div>
                     
                     <div class="project-organization">
+                        <!-- If you have organization logos in projects -->
+                        <img src="/Image/<%= project.organization_logo %>" 
+                             alt="<%= project.organization_name %> logo"
+                             onerror="this.src='/Image/placeholder-logo.png'"
+                             class="org-logo-small">
                         <span class="org-label">Organization:</span>
                         <a href="/organization/<%= project.organization_id %>" class="org-link">
                             <%= project.organization_name %>

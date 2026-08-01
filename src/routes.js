@@ -27,8 +27,10 @@ import {
 } from './controllers/projects.js';
 import { 
     showCategoriesPage,
+    showProjectsByCategory,
     showAssignCategoriesForm,
     processAssignCategoriesForm,
+    categoryValidation,
     getCategoriesJSON 
 } from './controllers/categories.js';
 import { 
@@ -73,6 +75,9 @@ router.post('/edit-project/:id', projectValidation, processEditProjectForm);
 
 // Categories pages
 router.get('/categories', showCategoriesPage);
+
+// Category Projects page (NEW - shows projects for a specific category)
+router.get('/category/:id', showProjectsByCategory);
 
 // Assign Categories to Project
 router.get('/project/:projectId/assign-categories', showAssignCategoriesForm);

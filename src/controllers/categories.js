@@ -5,10 +5,31 @@
 
 import { 
     getAllCategories,
+    getCategoryById,
     getCategoriesByServiceProjectId,
     updateCategoryAssignments
 } from '../models/categories.js';
-import { getProjectDetails } from '../models/projects.js';
+import { getProjectDetails, getProjectsByCategory, formatDate } from '../models/projects.js';
+import { body, validationResult } from 'express-validator';
+
+// ============================================
+// Validation Rules
+// ============================================
+
+const categoryValidation = [
+    body('name')
+        .trim()
+        .notEmpty()
+        .withMessage('Category name is required')
+        .isLength({ min: 3, max: 100 })
+        .withMessage('Category name must be between 3 and 100 characters')
+        .matches(/^[a-zA-Z0-9\s\-&']+$/)
+        .withMessage('Category name contains invalid characters')
+];
+
+// ============================================
+// Controller Functions
+// ============================================
 
 /**
  * Display the categories listing page
@@ -20,6 +41,48 @@ const showCategoriesPage = async (req, res, next) => {
         res.render('categories', { title, categories });
     } catch (error) {
         console.error('❌ Error in showCategoriesPage:', error);
+        next(error);
+    }
+};
+
+/**
+ * Display projects by category
+ */
+const showProjectsByCategory = async (req, res, next) => {
+    try {
+        const categoryId = req.params.id;
+        console.log(`📋 Fetching projects for category ID: ${categoryId}`);
+        
+        // Validate that the ID is a number
+        if (!/^\d+$/.test(categoryId)) {
+            const err = new Error('Invalid category ID');
+            err.status = 400;
+            return next(err);
+        }
+        
+        // Get category details
+        const category = await getCategoryById(categoryId);
+        
+        // If category not found, return 404
+        if (!category) {
+            const err = new Error('Category not found');
+            err.status = 404;
+            return next(err);
+        }
+        
+        // Get projects for this category
+        const projects = await getProjectsByCategory(categoryId);
+        console.log(`✅ Found ${projects.length} projects for category: ${category.name}`);
+        
+        const title = `Projects in: ${category.name}`;
+        
+        res.render('projects', {
+            title,
+            projects,
+            formatDate: formatDate
+        });
+    } catch (error) {
+        console.error('❌ Error in showProjectsByCategory:', error);
         next(error);
     }
 };
@@ -136,7 +199,9 @@ const getCategoriesJSON = async (req, res, next) => {
 // Export all controller functions
 export {
     showCategoriesPage,
+    showProjectsByCategory,
     showAssignCategoriesForm,
     processAssignCategoriesForm,
+    categoryValidation,
     getCategoriesJSON
 };

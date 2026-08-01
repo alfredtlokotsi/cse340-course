@@ -47,6 +47,10 @@
                 
                 <div class="project-detail-section">
                     <h3><i class="fas fa-building"></i> Organization</h3>
+                    <img src="/Image/<%= project.organization_logo %>" 
+                         alt="<%= project.organization_name %> logo"
+                         onerror="this.src='/Image/placeholder-logo.png'"
+                         class="org-logo-medium">
                     <a href="/organization/<%= project.organization_id %>" class="org-detail-link">
                         <strong><%= project.organization_name %></strong>
                     </a>
@@ -96,8 +100,7 @@
                 <a href="/organization/<%= project.organization_id %>" class="btn btn-primary">
                     <i class="fas fa-building"></i> View Organization
                 </a>
-                <!-- FIXED: Use a data attribute instead of onclick -->
-                <button class="btn btn-success" data-project-id="<%= project.project_id %>" id="registerBtn">
+                <button class="btn btn-success" onclick="registerForProject(<%= project.project_id %>)">
                     <i class="fas fa-hand-paper"></i> Register for this Project
                 </button>
             </div>
@@ -108,16 +111,9 @@
 <%- include('partials/footer') %>
 
 <script>
-    // Wait for the DOM to load before attaching event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        const registerBtn = document.getElementById('registerBtn');
-        if (registerBtn) {
-            registerBtn.addEventListener('click', function() {
-                const projectId = this.getAttribute('data-project-id');
-                if (confirm('Would you like to register for this service project?')) {
-                    alert('Thank you for registering! You will be contacted with more details.');
-                }
-            });
+    function registerForProject(projectId) {
+        if (confirm('Would you like to register for this service project?')) {
+            alert('Thank you for registering! You will be contacted with more details.');
         }
-    });
+    }
 </script>
