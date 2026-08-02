@@ -1745,4 +1745,305 @@ footer {
     }
 }
 
+/* ============================================
+   Dashboard Styles
+   ============================================ */
 
+.dashboard-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.dashboard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #3498db;
+}
+
+.dashboard-header h1 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.dashboard-welcome {
+    font-size: 1.1rem;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-welcome i {
+    font-size: 2rem;
+    color: #3498db;
+}
+
+.dashboard-welcome strong {
+    color: #2c3e50;
+}
+
+.dashboard-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.dashboard-card {
+    background: #f8f9fa;
+    padding: 25px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.dashboard-card h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-size: 1.2rem;
+    border-bottom: 2px solid #e9ecef;
+    padding-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-card h2 i {
+    color: #3498db;
+}
+
+.profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.profile-item:last-child {
+    border-bottom: none;
+}
+
+.profile-label {
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+.profile-value {
+    color: #555;
+}
+
+.quick-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.quick-actions .btn-sm {
+    justify-content: center;
+    width: 100%;
+    padding: 10px;
+}
+
+.account-date {
+    color: #3498db;
+    font-weight: 500;
+}
+
+.dashboard-card .btn-danger {
+    margin-top: 15px;
+}
+
+/* ============================================
+   Authentication (Login/Register) Styles
+   ============================================ */
+
+.auth-container {
+    max-width: 550px;
+    margin: 0 auto;
+}
+
+.auth-form-container {
+    background-color: #f8f9fa;
+    padding: 30px;
+    border-radius: 10px;
+    border: 1px solid #e9ecef;
+}
+
+.auth-form {
+    margin-top: 20px;
+}
+
+.auth-form .form-group {
+    margin-bottom: 20px;
+}
+
+.auth-form .form-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #2c3e50;
+}
+
+.auth-form .form-group .required {
+    color: #e74c3c;
+}
+
+.auth-form .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+    background-color: white;
+}
+
+.auth-form .form-group input:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+
+.auth-form .form-group input.error {
+    border-color: #e74c3c;
+}
+
+.auth-form .field-note {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.auth-form .error-message {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    margin-top: 5px;
+    display: none;
+}
+
+.auth-form .error-message.show {
+    display: block;
+}
+
+.auth-form .form-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+    flex-wrap: wrap;
+}
+
+.auth-form .form-actions .btn {
+    min-width: 180px;
+    padding: 12px 25px;
+    font-size: 1rem;
+    flex: 1;
+}
+
+.auth-footer {
+    margin-top: 20px;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.95rem;
+}
+
+.auth-footer a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+.auth-footer a:hover {
+    text-decoration: underline;
+}
+
+/* ============================================
+   Home Page Dashboard Link
+   ============================================ */
+
+.dashboard-link-container {
+    text-align: center;
+    margin-top: 30px;
+    padding-top: 30px;
+    border-top: 2px solid #e9ecef;
+}
+
+.dashboard-link-container .btn {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ============================================
+   Responsive Dashboard & Auth
+   ============================================ */
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .dashboard-content {
+        grid-template-columns: 1fr;
+    }
+
+    .profile-item {
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .dashboard-card {
+        padding: 20px;
+    }
+
+    .auth-form-container {
+        padding: 20px;
+    }
+
+    .auth-form .form-actions {
+        flex-direction: column;
+    }
+
+    .auth-form .form-actions .btn {
+        width: 100%;
+        min-width: unset;
+    }
+}
+
+@media (max-width: 480px) {
+    .dashboard-card {
+        padding: 15px;
+    }
+
+    .quick-actions .btn-sm {
+        font-size: 0.85rem;
+    }
+
+    .auth-container {
+        padding: 0 5px;
+    }
+
+    .auth-form .form-group input {
+        padding: 10px 12px;
+        font-size: 0.95rem;
+    }
+}

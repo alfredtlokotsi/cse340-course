@@ -29,15 +29,21 @@
                 <li><a href="/organizations"><i class="fas fa-building"></i> Organizations</a></li>
                 <li><a href="/projects"><i class="fas fa-project-diagram"></i> Projects</a></li>
                 <li><a href="/categories"><i class="fas fa-tags"></i> Categories</a></li>
+                <% if (isLoggedIn) { %>
+                    <li><a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+                <% } else { %>
+                    <li><a href="/register"><i class="fas fa-user-plus"></i> Register</a></li>
+                    <li><a href="/login"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+                <% } %>
             </ul>
         </div>
     </nav>
 
     <!-- Flash Messages -->
     <div class="flash-messages">
-        <% const messages = flash(); %>
-        <% Object.keys(messages).forEach(type => { %>
-            <% if (messages[type].length > 0) { %>
+        <% const flashData = flash(); %>
+        <% Object.keys(flashData).forEach(function(type) { %>
+            <% if (flashData[type].length > 0) { %>
                 <div class="alert alert-<%= type %>">
                     <i class="fas <%= 
                         type === 'success' ? 'fa-check-circle' : 
@@ -46,7 +52,7 @@
                         'fa-info-circle' 
                     %>"></i>
                     <div class="alert-messages">
-                        <% messages[type].forEach(msg => { %>
+                        <% flashData[type].forEach(function(msg) { %>
                             <p><%= msg %></p>
                         <% }); %>
                     </div>

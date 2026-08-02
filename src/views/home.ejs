@@ -1,9 +1,20 @@
 <%- include('partials/header') %>
+
 <main>
     <h1>Home</h1>
     <h2>Welcome to the CSE 340 Service Network!</h2>
     <p>Our mission is to promote service across the world by connecting volunteers with service opportunities in their community.</p>
+    
     <img class="main-logo" src="/Image/cse340-service-network.png" alt="CSE 340 Service Network Logo">
+    
+    <!-- Dashboard Link - Only visible when logged in -->
+    <% if (isLoggedIn) { %>
+        <div class="dashboard-link-container">
+            <a href="/dashboard" class="btn btn-primary">
+                <i class="fas fa-tachometer-alt"></i> My Dashboard
+            </a>
+        </div>
+    <% } %>
 </main>
 
 <%- include('partials/footer') %>
