@@ -30,6 +30,9 @@ const SESSION_SECRET = process.env.SESSION_SECRET;
 if (!SESSION_SECRET) {
     console.error('❌ SESSION_SECRET is not set in environment variables!');
     console.error('Please generate a secret using: node -e "console.log(require(\'crypto\').randomBytes(64).toString(\'hex\'))"');
+    if (NODE_ENV === 'production') {
+        console.error('⚠️  WARNING: SESSION_SECRET is required in production!');
+    }
 }
 
 // Create __dirname for ES modules
@@ -43,30 +46,36 @@ const app = express();
 // View Engine Setup
 // ============================================
 
-// Set EJS as the templating engine
 app.set('view engine', 'ejs');
-
-// Tell Express where to find your templates
 app.set('views', path.join(__dirname, 'src/views'));
+
+// ============================================
+// Trust Proxy (Required for Render)
+// ============================================
+
+// Trust the first proxy (Render uses a proxy)
+// This is CRITICAL for sessions to work on Render
+app.set('trust proxy', 1);
 
 // ============================================
 // Middleware
 // ============================================
 
-// 1. Session Management (MUST be before any route handlers)
+// 1. Session Management
+// IMPORTANT: Use a more permissive cookie configuration for production
 app.use(session({
     secret: SESSION_SECRET || 'fallback-secret-key-for-development-only',
     resave: false,
-    saveUninitialized: false, // Changed to false to only create sessions when needed
+    saveUninitialized: false,
     cookie: { 
-        maxAge: 60 * 60 * 1000, // Session expires after 1 hour of inactivity
-        secure: NODE_ENV === 'production', // Only send cookie over HTTPS in production
-        httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-        sameSite: 'lax' // Protects against CSRF attacks
+        maxAge: 24 * 60 * 60 * 1000, // 24 hours instead of 1 hour
+        secure: false, // Set to false for Render (uses HTTPS but proxy handles it)
+        httpOnly: true,
+        sameSite: 'lax'
     }
 }));
 
-// 2. Flash Message Middleware (MUST be after session middleware)
+// 2. Flash Message Middleware
 app.use(flash);
 
 // 3. Middleware to log all incoming requests (development only)
@@ -75,10 +84,13 @@ app.use((req, res, next) => {
         const timestamp = new Date().toISOString();
         console.log(`[${timestamp}] ${req.method} ${req.url}`);
     }
+    // Always log session ID for debugging on Render
+    if (NODE_ENV === 'production') {
+        console.log(`📝 Session ID: ${req.sessionID}`);
+        console.log(`📝 User in session: ${req.session.user ? 'Yes' : 'No'}`);
+    }
     next();
 });
-
-// In the middleware section of server.js, update the function that sets res.locals:
 
 // 4. Middleware to make NODE_ENV and login status available to all templates
 app.use((req, res, next) => {
@@ -86,9 +98,13 @@ app.use((req, res, next) => {
     res.locals.isLoggedIn = false;
     res.locals.user = null;
     
+    // Debug logging
+    if (NODE_ENV === 'production') {
+        console.log(`🔍 Checking session for user: ${req.session.user ? req.session.user.email : 'No user'}`);
+    }
+    
     if (req.session && req.session.user) {
         res.locals.isLoggedIn = true;
-        // Make the entire user object available to templates
         res.locals.user = req.session.user;
     }
 
@@ -102,9 +118,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// 6. Body Parser Middleware - CRITICAL for handling POST form data
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded form data
-app.use(express.json()); // Parse JSON data
+// 6. Body Parser Middleware
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 // 7. Serve static files from the public directory
 app.use(express.static(path.join(__dirname, 'public')));
@@ -113,32 +129,27 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Routes
 // ============================================
 
-// Use the imported router to handle all routes
 app.use(router);
 
 // ============================================
 // Start Server
 // ============================================
 
-app.listen(PORT, async () => {
+app.listen(PORT, '0.0.0.0', async () => {
     console.log('=================================');
-    console.log(`🚀 Server is running at http://127.0.0.1:${PORT}`);
+    console.log(`🚀 Server is running on port ${PORT}`);
     console.log(`🔧 Environment: ${NODE_ENV}`);
-    console.log(`📊 SQL Logging: ${process.env.ENABLE_SQL_LOGGING === 'true' ? 'Enabled' : 'Disabled'}`);
     console.log(`🔐 Session: ${SESSION_SECRET ? 'Configured ✅' : 'Missing ❌'}`);
     console.log(`📁 Views: ${path.join(__dirname, 'src/views')}`);
     console.log(`📁 Public: ${path.join(__dirname, 'public')}`);
     console.log('=================================');
     
     try {
-        // Test the database connection
         await testConnection();
         console.log('✅ Application ready to handle requests');
         console.log('=================================');
     } catch (error) {
-        console.error('❌ Application failed to connect to the database:');
-        console.error('   Please check your DB_URL in the .env file');
-        console.error('   The application will continue running but database features will not work');
+        console.error('❌ Database connection failed:', error.message);
         console.log('=================================');
     }
 });
@@ -147,12 +158,9 @@ app.listen(PORT, async () => {
 // Graceful Shutdown
 // ============================================
 
-// Handle SIGINT (Ctrl+C) for graceful shutdown
 process.on('SIGINT', async () => {
     console.log('\n🛑 Shutting down server gracefully...');
-    
     try {
-        // Close database connection pool
         if (db && typeof db.close === 'function') {
             await db.close();
         }
@@ -160,66 +168,7 @@ process.on('SIGINT', async () => {
     } catch (error) {
         console.error('❌ Error closing database connection:', error);
     }
-    
-    console.log('👋 Server shutdown complete');
     process.exit(0);
 });
-
-// Handle SIGTERM (kill command) for graceful shutdown
-process.on('SIGTERM', async () => {
-    console.log('\n🛑 Shutting down server gracefully...');
-    
-    try {
-        if (db && typeof db.close === 'function') {
-            await db.close();
-        }
-        console.log('✅ Database connection closed');
-    } catch (error) {
-        console.error('❌ Error closing database connection:', error);
-    }
-    
-    console.log('👋 Server shutdown complete');
-    process.exit(0);
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', async (err) => {
-    console.error('💥 Uncaught Exception:', err);
-    console.error('📚 Stack trace:', err.stack);
-    
-    // Close database connection before exiting
-    try {
-        if (db && typeof db.close === 'function') {
-            await db.close();
-        }
-        console.log('✅ Database connection closed');
-    } catch (error) {
-        console.error('❌ Error closing database connection:', error);
-    }
-    
-    process.exit(1);
-});
-
-// Handle unhandled promise rejections
-process.on('unhandledRejection', async (reason, promise) => {
-    console.error('💥 Unhandled Rejection at:', promise);
-    console.error('💥 Reason:', reason);
-    
-    // Close database connection before exiting
-    try {
-        if (db && typeof db.close === 'function') {
-            await db.close();
-        }
-        console.log('✅ Database connection closed');
-    } catch (error) {
-        console.error('❌ Error closing database connection:', error);
-    }
-    
-    process.exit(1);
-});
-
-// ============================================
-// Export app for testing purposes
-// ============================================
 
 export default app;

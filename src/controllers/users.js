@@ -167,18 +167,24 @@ const processLoginForm = async (req, res, next) => {
             // Store user in session
             req.session.user = user;
             
-            console.log(`✅ User logged in: ${user.email} (ID: ${user.user_id})`);
-            console.log(`   Role: ${user.role_name}`);
-            
-            // Set success flash message
-            req.flash('success', `Welcome back, ${user.name}!`);
-            
-            // Redirect to dashboard
-            return res.redirect('/dashboard');
+            // Save the session explicitly before redirecting
+            req.session.save((err) => {
+                if (err) {
+                    console.error('❌ Error saving session:', err);
+                    req.flash('error', 'Failed to create session. Please try again.');
+                    return res.redirect('/login');
+                }
+                
+                console.log(`✅ User logged in: ${user.email} (ID: ${user.user_id})`);
+                console.log(`   Role: ${user.role_name}`);
+                console.log(`   Session ID: ${req.sessionID}`);
+                
+                req.flash('success', `Welcome back, ${user.name}!`);
+                res.redirect('/dashboard');
+            });
         } else {
-            // Authentication failed
             req.flash('error', 'Invalid email or password');
-            return res.redirect('/login');
+            res.redirect('/login');
         }
     } catch (error) {
         console.error('❌ Error processing login:', error);
