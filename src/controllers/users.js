@@ -4,7 +4,7 @@
 // ============================================
 
 import bcrypt from 'bcrypt';
-import { createUser, authenticateUser, findUserByEmail } from '../models/users.js';
+import { createUser, authenticateUser, findUserByEmail, getAllUsers } from '../models/users.js';
 import { body, validationResult } from 'express-validator';
 
 const saltRounds = 10;
@@ -31,11 +31,7 @@ const userValidation = [
         .notEmpty()
         .withMessage('Password is required')
         .isLength({ min: 4 })
-        .withMessage('Password must be at least 8 characters')
-        .matches(/[a-z]/)
-        .withMessage('Password must contain at least one lowercase letter')
-        .matches(/[0-9]/)
-        .withMessage('Password must contain at least one number')
+        .withMessage('Password must be at least 4 characters')
 ];
 
 // ============================================
@@ -194,18 +190,21 @@ const processLoginForm = async (req, res, next) => {
 /**
  * Process logout
  */
+/**
+ * Process logout
+ */
 const processLogout = (req, res) => {
     // Destroy the session
     req.session.destroy((err) => {
         if (err) {
             console.error('❌ Error destroying session:', err);
-            req.flash('error', 'Failed to logout. Please try again.');
-            return res.redirect('/');
+            // Don't try to use flash here as session is destroyed
+            return res.redirect('/login');
         }
         
         console.log('✅ User logged out');
-        req.flash('success', 'You have been successfully logged out.');
-        res.redirect('/login');
+        // Redirect to login page with a query parameter for success message
+        res.redirect('/login?loggedOut=true');
     });
 };
 
@@ -219,8 +218,28 @@ const showDashboard = (req, res) => {
     res.render('dashboard', { 
         title,
         name: user.name,
-        email: user.email
+        email: user.email,
+        user: user // Pass user object for role checks
     });
+};
+
+/**
+ * Display the users list page (admin only)
+ */
+const showUsersPage = async (req, res, next) => {
+    try {
+        const users = await getAllUsers();
+        const title = 'Users Management';
+        
+        res.render('users', { 
+            title,
+            users
+        });
+    } catch (error) {
+        console.error('❌ Error fetching users:', error);
+        req.flash('error', 'Failed to load users list.');
+        res.redirect('/dashboard');
+    }
 };
 
 // Export controller functions
@@ -233,5 +252,6 @@ export {
     requireLogin,
     requireRole,
     showDashboard,
+    showUsersPage,
     userValidation
 };

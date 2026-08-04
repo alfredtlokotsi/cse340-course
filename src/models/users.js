@@ -79,6 +79,33 @@ const findUserByEmail = async (email) => {
 };
 
 /**
+ * Get all users with their role information
+ * @returns {Promise<Array>} Array of user objects
+ */
+const getAllUsers = async () => {
+    const query = `
+        SELECT 
+            u.user_id,
+            u.name,
+            u.email,
+            u.role_id,
+            u.created_at,
+            r.role_name
+        FROM users u
+        INNER JOIN roles r ON u.role_id = r.role_id
+        ORDER BY u.user_id;
+    `;
+
+    try {
+        const result = await db.query(query);
+        return result.rows;
+    } catch (error) {
+        console.error('❌ Error fetching all users:', error);
+        throw error;
+    }
+};
+
+/**
  * Verify a password against a hash
  * @param {string} password - Plain text password
  * @param {string} passwordHash - Stored password hash
@@ -153,6 +180,7 @@ const getUserById = async (userId) => {
 export {
     createUser,
     findUserByEmail,
+    getAllUsers,
     verifyPassword,
     authenticateUser,
     getUserById

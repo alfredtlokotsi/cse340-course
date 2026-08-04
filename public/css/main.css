@@ -2047,3 +2047,175 @@ footer {
         font-size: 0.95rem;
     }
 }
+ /* ============================================
+   Users Page Styles
+   ============================================ */
+
+.users-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 3px solid #3498db;
+}
+
+.users-page-header h1 {
+    margin: 0;
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.users-table-container {
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+.table-responsive {
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.95rem;
+}
+
+.users-table thead {
+    background: linear-gradient(135deg, #2c3e50, #3498db);
+    color: white;
+}
+
+.users-table thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.users-table tbody tr {
+    border-bottom: 1px solid #e9ecef;
+    transition: background-color 0.2s ease;
+}
+
+.users-table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.users-table tbody td {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+
+.users-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Role Badges */
+.role-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.role-badge.role-admin {
+    background: #dc3545;
+    color: white;
+}
+
+.role-badge.role-user {
+    background: #28a745;
+    color: white;
+}
+
+/* Users Count */
+.users-count {
+    margin-top: 20px;
+    padding: 15px;
+    background: #e8f4fd;
+    border-radius: 8px;
+    text-align: center;
+    color: #2c3e50;
+    font-weight: bold;
+}
+
+/* Admin Card on Dashboard */
+.admin-card {
+    border: 2px solid #dc3545;
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, #fff5f5, #ffffff);
+}
+
+.admin-card h2 {
+    color: #dc3545;
+}
+
+.admin-card h2 i {
+    color: #dc3545;
+}
+
+.admin-card .btn-info {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.admin-card .btn-info:hover {
+    background-color: #138496;
+    transform: translateY(-2px);
+}
+
+/* ============================================
+   Responsive Users Table
+   ============================================ */
+
+@media (max-width: 768px) {
+    .users-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+
+    .users-table thead th,
+    .users-table tbody td {
+        padding: 10px 12px;
+        font-size: 0.85rem;
+    }
+
+    .users-table {
+        font-size: 0.85rem;
+    }
+
+    .admin-card {
+        grid-column: 1;
+    }
+}
+
+@media (max-width: 480px) {
+    .users-table-container {
+        padding: 10px;
+    }
+
+    .users-table thead th,
+    .users-table tbody td {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+    }
+
+    .role-badge {
+        font-size: 0.65rem;
+        padding: 2px 10px;
+    }
+
+    .users-page-header .btn-sm {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
