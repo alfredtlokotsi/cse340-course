@@ -6,9 +6,11 @@
             <h1>Upcoming Service Projects</h1>
             <p class="upcoming-note">Showing the next <%= projects ? projects.length : 0 %> upcoming projects.</p>
         </div>
-        <a href="/new-project" class="btn btn-success btn-sm">
-            <i class="fas fa-plus-circle"></i> Add New Project
-        </a>
+        <% if (user && user.role_name === 'admin') { %>
+            <a href="/new-project" class="btn btn-success btn-sm">
+                <i class="fas fa-plus-circle"></i> Add New Project
+            </a>
+        <% } %>
     </div>
     
     <div class="projects-header">
@@ -67,7 +69,9 @@
             <div class="empty-icon">📋</div>
             <h3>No Upcoming Projects</h3>
             <p>There are currently no upcoming service projects.</p>
-            <p><a href="/new-project">Add a new project</a> to get started!</p>
+            <% if (user && user.role_name === 'admin') { %>
+                <p><a href="/new-project">Add a new project</a> to get started!</p>
+            <% } %>
         </div>
     <% } %>
 </main>

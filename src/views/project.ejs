@@ -14,12 +14,14 @@
                 <a href="/projects" class="btn btn-secondary btn-sm">
                     <i class="fas fa-arrow-left"></i> Back to Projects
                 </a>
-                <a href="/edit-project/<%= project.project_id %>" class="btn btn-primary btn-sm">
-                    <i class="fas fa-edit"></i> Edit Project
-                </a>
-                <a href="/project/<%= project.project_id %>/assign-categories" class="btn btn-info btn-sm">
-                    <i class="fas fa-tags"></i> Edit Categories
-                </a>
+                <% if (user && user.role_name === 'admin') { %>
+                    <a href="/edit-project/<%= project.project_id %>" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit"></i> Edit Project
+                    </a>
+                    <a href="/project/<%= project.project_id %>/assign-categories" class="btn btn-info btn-sm">
+                        <i class="fas fa-tags"></i> Edit Categories
+                    </a>
+                <% } %>
             </div>
         </div>
         

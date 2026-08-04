@@ -78,13 +78,17 @@ app.use((req, res, next) => {
     next();
 });
 
+// In the middleware section of server.js, update the function that sets res.locals:
+
 // 4. Middleware to make NODE_ENV and login status available to all templates
 app.use((req, res, next) => {
     // Set isLoggedIn based on session
     res.locals.isLoggedIn = false;
+    res.locals.user = null;
+    
     if (req.session && req.session.user) {
         res.locals.isLoggedIn = true;
-        // Also make user available to templates if needed
+        // Make the entire user object available to templates
         res.locals.user = req.session.user;
     }
 

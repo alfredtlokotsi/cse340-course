@@ -7,9 +7,11 @@
             <a href="/organizations" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Back to Organizations
             </a>
-            <a href="/edit-organization/<%= organizationDetails.organization_id %>" class="btn btn-primary btn-sm">
-                <i class="fas fa-edit"></i> Edit Organization
-            </a>
+            <% if (user && user.role_name === 'admin') { %>
+                <a href="/edit-organization/<%= organizationDetails.organization_id %>" class="btn btn-primary btn-sm">
+                    <i class="fas fa-edit"></i> Edit Organization
+                </a>
+            <% } %>
         </div>
     </div>
     

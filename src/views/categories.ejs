@@ -6,9 +6,11 @@
             <h1>Service Categories</h1>
             <p>Browse service opportunities by category. Find the perfect way to make a difference in your community!</p>
         </div>
-        <a href="/new-category" class="btn btn-success btn-sm">
-            <i class="fas fa-plus-circle"></i> Add New Category
-        </a>
+        <% if (user && user.role_name === 'admin') { %>
+            <a href="/new-category" class="btn btn-success btn-sm">
+                <i class="fas fa-plus-circle"></i> Add New Category
+            </a>
+        <% } %>
     </div>
     
     <div class="categories-header">
@@ -38,9 +40,11 @@
                             <a href="/category/<%= category.category_id %>" class="btn btn-primary btn-sm">
                                 <i class="fas fa-eye"></i> View Projects
                             </a>
-                            <a href="/edit-category/<%= category.category_id %>" class="btn btn-secondary btn-sm">
-                                <i class="fas fa-edit"></i> Edit
-                            </a>
+                            <% if (user && user.role_name === 'admin') { %>
+                                <a href="/edit-category/<%= category.category_id %>" class="btn btn-secondary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            <% } %>
                         </div>
                     </div>
                 </div>
@@ -55,7 +59,9 @@
             <div class="empty-icon">🏷️</div>
             <h3>No Categories Available</h3>
             <p>There are currently no categories available.</p>
-            <a href="/new-category" class="btn btn-success">Add a New Category</a>
+            <% if (user && user.role_name === 'admin') { %>
+                <a href="/new-category" class="btn btn-success">Add a New Category</a>
+            <% } %>
         </div>
     <% } %>
 </main>

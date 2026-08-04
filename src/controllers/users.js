@@ -30,10 +30,8 @@ const userValidation = [
     body('password')
         .notEmpty()
         .withMessage('Password is required')
-        .isLength({ min: 8 })
+        .isLength({ min: 4 })
         .withMessage('Password must be at least 8 characters')
-        .matches(/[A-Z]/)
-        .withMessage('Password must contain at least one uppercase letter')
         .matches(/[a-z]/)
         .withMessage('Password must contain at least one lowercase letter')
         .matches(/[0-9]/)
@@ -53,6 +51,30 @@ const requireLogin = (req, res, next) => {
         return res.redirect('/login');
     }
     next();
+};
+
+/**
+ * Middleware factory to require a specific role
+ * @param {string} role - The required role name
+ * @returns {Function} Middleware function
+ */
+const requireRole = (role) => {
+    return (req, res, next) => {
+        // Check if user is logged in
+        if (!req.session || !req.session.user) {
+            req.flash('error', 'You must be logged in to access that page.');
+            return res.redirect('/login');
+        }
+        
+        // Check if user has the required role
+        if (req.session.user.role_name !== role) {
+            req.flash('error', 'You do not have permission to access that page.');
+            return res.redirect('/');
+        }
+        
+        // User has the required role, proceed
+        next();
+    };
 };
 
 // ============================================
@@ -150,6 +172,7 @@ const processLoginForm = async (req, res, next) => {
             req.session.user = user;
             
             console.log(`✅ User logged in: ${user.email} (ID: ${user.user_id})`);
+            console.log(`   Role: ${user.role_name}`);
             
             // Set success flash message
             req.flash('success', `Welcome back, ${user.name}!`);
@@ -208,6 +231,7 @@ export {
     processLoginForm,
     processLogout,
     requireLogin,
+    requireRole,
     showDashboard,
     userValidation
 };
